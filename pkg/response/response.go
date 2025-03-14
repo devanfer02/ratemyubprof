@@ -1,43 +1,54 @@
 package response
 
-type ErrorResponse struct {
-	Code     int    `json:"code"`
-	Message  string `json:"message"`
-	Err      error  `json:"error"`
-	Location string `json:"-"`
-}
+import "errors"
 
 type Response struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Data    any    `json:"data"`
-	Meta    any    `json:"meta,omitempty"`
+	Message  string `json:"message"`
+	Data     any    `json:"data"`
+	Meta     any    `json:"meta,omitempty"`
+	Err      error  `json:"error,omitempty"`
+	Location string `json:"-"`
+	Code     int    `json:"-"`
 }
 
-func NewResponse(
-	code int,
+func New(
 	message string,
 	data any,
 	meta any,
 ) *Response {
 	return &Response{
-		Code:    code,
 		Message: message,
 		Data:    data,
 		Meta:    meta,
 	}
 }
 
-func (e ErrorResponse) Error() string {
-	return e.Message
+func NewErr(
+	code int,
+	message string,
+) *Response {
+	return &Response{
+		Message: message,
+		Code: code,
+		Err: errors.New(message),
+	}
 }
 
-func (e *ErrorResponse) WithErr(err error) *ErrorResponse {
-	e.Err = err
-	return e
+func (r Response) Error() string {
+	return r.Message
 }
 
-func (e *ErrorResponse) WithLocation(location string) *ErrorResponse {
-	e.Location = location
-	return e
+func (r *Response) WithErr(err error) *Response {
+	r.Err = err
+	return r
+}
+
+func (r *Response) WithCode(code int) *Response {
+	r.Code = code 
+	return r 
+}
+
+func (r *Response) WithLocation(location string) *Response {
+	r.Location = location
+	return r
 }

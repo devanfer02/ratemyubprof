@@ -5,12 +5,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	handler "github.com/devanfer02/presentia-api/internal/app/user/handler/http"
-	"github.com/devanfer02/presentia-api/internal/app/user/repository"
-	"github.com/devanfer02/presentia-api/internal/app/user/service"
+	user_handler "github.com/devanfer02/presentia-api/internal/app/user/handler/http"
+	user_repo "github.com/devanfer02/presentia-api/internal/app/user/repository"
+	user_svc "github.com/devanfer02/presentia-api/internal/app/user/service"
+
+	prof_svc "github.com/devanfer02/presentia-api/internal/app/professor/service"
+	prof_ctr "github.com/devanfer02/presentia-api/internal/app/professor/controller"
+
 	"github.com/devanfer02/presentia-api/internal/infra/database"
 	"github.com/devanfer02/presentia-api/internal/infra/env"
 	"github.com/devanfer02/presentia-api/internal/middleware"
+	"github.com/devanfer02/presentia-api/pkg/config"
 	logger "github.com/devanfer02/presentia-api/pkg/log"
 	validate "github.com/devanfer02/presentia-api/pkg/validator"
 	"github.com/go-playground/validator/v10"
@@ -40,6 +45,8 @@ func NewHttpServer() *httpServer {
 	router := echo.New()
 	validator := validate.NewValidator()
 
+	router.JSONSerializer = config.NewSonicJSONSerializer()
+
 	return &httpServer{
 		Env: env,
 		Logger: logger,
@@ -51,11 +58,18 @@ func NewHttpServer() *httpServer {
 }
 
 func (h *httpServer) MountHandlers() {
-	userRepo := repository.NewUserRepository(h.Database)
-	userSvc := service.NewUserService(userRepo)
-	userCtr := handler.NewUserHandler(userSvc, h.Validator)
+	userRepo := user_repo.NewUserRepository(h.Database)
+	userSvc := user_svc.NewUserService(userRepo)
+	userCtr := user_handler.NewUserHandler(userSvc, h.Validator)
 
-	h.Handlers = append(h.Handlers, userCtr)
+	profSvc := prof_svc.NewProfessorService()
+	profCtr := prof_ctr.NewProfessorController(profSvc)
+
+	h.Handlers = append(
+		h.Handlers, 
+		userCtr,
+		profCtr,
+	)
 }
 
 func (h *httpServer) Start() {
