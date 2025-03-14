@@ -14,7 +14,7 @@ func ErrLogger(logger *zap.Logger) echo.MiddlewareFunc {
 			err := next(c)
 
 			if err != nil {
-				var custom *response.ErrorResponse
+				var custom *response.Response
 	
 				if errors.As(err, &custom) {
 					logger.Warn("ERR",

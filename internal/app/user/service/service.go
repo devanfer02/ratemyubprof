@@ -1,8 +1,6 @@
 package service
 
-import (
-	contracts "github.com/devanfer02/presentia-api/internal/contracts/repositories"
-)
+import "github.com/devanfer02/presentia-api/internal/app/user/contracts"
 
 type UserService interface {
 
