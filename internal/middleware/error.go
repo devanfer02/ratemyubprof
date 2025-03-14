@@ -3,7 +3,7 @@ package middleware
 import (
 	"errors"
 
-	"github.com/devanfer02/presentia-api/pkg/response"
+	"github.com/devanfer02/ratemyubprof/pkg/response"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

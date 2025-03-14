@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/devanfer02/presentia-api/internal/infra/env"
+	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )

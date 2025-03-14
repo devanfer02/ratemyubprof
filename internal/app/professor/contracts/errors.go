@@ -3,7 +3,7 @@ package contracts
 import (
 	"net/http"
 
-	"github.com/devanfer02/presentia-api/pkg/response"
+	"github.com/devanfer02/ratemyubprof/pkg/response"
 )
 
 var (

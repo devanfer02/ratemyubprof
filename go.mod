@@ -1,4 +1,4 @@
-module github.com/devanfer02/presentia-api
+module github.com/devanfer02/ratemyubprof
 
 go 1.22.9
 

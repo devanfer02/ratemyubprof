@@ -1,6 +1,6 @@
 package service
 
-import "github.com/devanfer02/presentia-api/internal/app/user/contracts"
+import "github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 
 type UserService interface {
 

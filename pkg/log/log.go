@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/devanfer02/presentia-api/internal/infra/env"
+	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 	"go.uber.org/zap"
 )
 

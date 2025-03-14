@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/devanfer02/presentia-api/internal/app/user/contracts"
+	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/jmoiron/sqlx"
 )
 

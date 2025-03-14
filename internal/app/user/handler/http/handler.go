@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/devanfer02/presentia-api/internal/app/user/service"
+	"github.com/devanfer02/ratemyubprof/internal/app/user/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/devanfer02/presentia-api/internal/infra/server"
+	"github.com/devanfer02/ratemyubprof/internal/infra/server"
 )
 
 func main() {

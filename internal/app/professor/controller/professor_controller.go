@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/devanfer02/presentia-api/internal/app/professor/contracts"
-	"github.com/devanfer02/presentia-api/internal/dto"
-	"github.com/devanfer02/presentia-api/pkg/response"
+	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
+	"github.com/devanfer02/ratemyubprof/internal/dto"
+	"github.com/devanfer02/ratemyubprof/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 

@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/bytedance/sonic"
-	"github.com/devanfer02/presentia-api/internal/app/professor/contracts"
-	"github.com/devanfer02/presentia-api/internal/dto"
-	"github.com/devanfer02/presentia-api/pkg/helpers"
+	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
+	"github.com/devanfer02/ratemyubprof/internal/dto"
+	"github.com/devanfer02/ratemyubprof/pkg/helpers"
 )
 
 type professorService struct {
