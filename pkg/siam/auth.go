@@ -5,6 +5,7 @@ import (
 	"errors"
 	"mime/multipart"
 	"strings"
+	"time"
 
 	"github.com/Noooste/azuretls-client"
 	"go.uber.org/zap"
@@ -70,6 +71,7 @@ func (s *SiamAuthManager) Authenticate(username, password string) error {
 	}
 
 	s.session.OrderedHeaders = reqHeaders
+	s.session.SetTimeout(10 * time.Second)
 
 	response, err := s.session.Post("https://siam.ub.ac.id/index.php", &requestBody)
     if err != nil {
