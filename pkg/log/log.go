@@ -23,5 +23,5 @@ func NewLogger(env *env.Env) *zap.Logger {
 		panic(err)
 	}
 
-	return logger 
+	return logger.WithOptions(zap.AddStacktrace(zap.DPanicLevel))
 }

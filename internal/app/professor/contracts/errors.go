@@ -3,9 +3,9 @@ package contracts
 import (
 	"net/http"
 
-	"github.com/devanfer02/ratemyubprof/pkg/response"
+	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 )
 
 var (
-	ErrRequestTimeout = response.NewErr(http.StatusRequestTimeout, "http request timeout")
+	ErrRequestTimeout = apperr.New(http.StatusRequestTimeout, "request timeout")
 )

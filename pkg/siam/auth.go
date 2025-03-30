@@ -2,12 +2,12 @@ package siam
 
 import (
 	"bytes"
-	"errors"
 	"mime/multipart"
 	"strings"
 	"time"
 
 	"github.com/Noooste/azuretls-client"
+	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"go.uber.org/zap"
 )
 
@@ -80,9 +80,9 @@ func (s *SiamAuthManager) Authenticate(username, password string) error {
     }
 	
 	if strings.Contains(string(response.Body), "Silahkan memasukkan ulang password Anda!") {
-		return errors.New("invalid credential")
+		return contracts.ErrInvalidCredential
 	} else if strings.Contains(string(response.Body), "User belum terdaftar di database") {
-		return errors.New("invalid credential")
+		return contracts.ErrInvalidCredential
 	} 
 
 	s.session.Close()

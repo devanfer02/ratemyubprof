@@ -66,6 +66,11 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 
 	_, err = u.conn.ExecContext(ctx, query, args...)
 	if err != nil {
+		
+		if contracts.IsErrorCode(err, contracts.PgsqlUniqueViolationErr) {
+			return contracts.ErrUsernameTaken
+		}
+
 		return err
 	}
 

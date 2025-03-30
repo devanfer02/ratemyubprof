@@ -11,7 +11,7 @@ import (
 
 type sonicJsonSerializer struct{}
 
-func NewSonicJSONSerializer() *sonicJsonSerializer {
+func newSonicJSONSerializer() *sonicJsonSerializer {
 	return &sonicJsonSerializer{}
 }
 

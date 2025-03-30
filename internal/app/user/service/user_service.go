@@ -8,8 +8,8 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/oklog/ulid/v2"
 
-	hasher "github.com/devanfer02/ratemyubprof/pkg/bcrypt"
 	"github.com/devanfer02/ratemyubprof/pkg/siam"
+	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"go.uber.org/zap"
 )
 
@@ -39,7 +39,7 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 		return err 
 	}
 
-	hashed, err := hasher.HashPassword(usr.Password)
+	hashed, err := util.HashPassword(usr.Password)
 	if err != nil {
 		return err 
 	}

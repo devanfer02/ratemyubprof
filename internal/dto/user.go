@@ -1,8 +1,8 @@
 package dto
 
 type UserRegisterRequest struct {
-	NIM string `json:"nim"`
-	Password string `json:"password"`
-	Username string `json:"username"`
-	NewPassword string `json:"newPassword"`
+	NIM         string `json:"nim" validate:"required"`
+	Password    string `json:"password" validate:"required"`
+	Username    string `json:"username" validate:"required"`
+	NewPassword string `json:"newPassword" validate:"required"`
 }

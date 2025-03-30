@@ -2,27 +2,28 @@ package middleware
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 )
 
 func RequestLogger(logger *zap.Logger) echo.MiddlewareFunc {
-	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogURI:      true,
-		LogStatus:   true,
-		LogMethod:   true,
-		LogLatency:  true,
-		LogRemoteIP: true,
-		LogError:    true,
-		LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			req := c.Request()
+			res := c.Response()
+
+			err := next(c)
+
 			logger.Info("Request",
-				zap.String("remote_ip", values.RemoteIP),
-				zap.String("method", values.Method),
-				zap.Int("status", values.Status),
-				zap.String("uri", values.URI),
-				zap.String("latency", values.Latency.String()),
+				zap.String("Remote IP", c.RealIP()),
+				zap.String("Host", req.Host),
+				zap.String("URI", req.RequestURI),
+				zap.String("Method", req.Method),
+				zap.Int("Status", res.Status),
+				zap.Int64("Size", res.Size),
+				zap.String("User Agent", req.UserAgent()),
 			)
-			return nil
-		},
-	})
+
+			return err
+		}
+	}
 }

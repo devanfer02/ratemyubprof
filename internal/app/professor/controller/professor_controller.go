@@ -6,7 +6,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
-	"github.com/devanfer02/ratemyubprof/pkg/response"
+	"github.com/devanfer02/ratemyubprof/pkg/http/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -34,6 +34,7 @@ func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error 
 
 	var (
 		responeChan = make(chan response.Response)
+		errChan = make(chan error)
 	)
 
 	go func () {
@@ -53,11 +54,7 @@ func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error 
 
 		professors, err := c.profSvc.FetchStaticProfessorData(&fetchQuery)
 		if err != nil {
-			responeChan <- *response.New(
-				"Failed to fetch data from static file",
-				nil,
-				nil,
-			).WithErr(err)
+			errChan <- err 
 			return
 		}
 
@@ -71,6 +68,8 @@ func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error 
 	select {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
+	case err := <- errChan:
+		return err 
 	case resp := <- responeChan:
 		return ectx.JSON(resp.Code, resp)
 	}

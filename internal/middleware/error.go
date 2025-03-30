@@ -1,9 +1,6 @@
 package middleware
 
 import (
-	"errors"
-
-	"github.com/devanfer02/ratemyubprof/pkg/response"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -11,24 +8,21 @@ import (
 func ErrLogger(logger *zap.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			
 			err := next(c)
 
 			if err != nil {
-				var custom *response.Response
-	
-				if errors.As(err, &custom) {
-					logger.Warn("ERR",
-						zap.String("Error", custom.Err.Error()),
-						zap.String("File Location", custom.Location),
-					)
-					
-				} else {
-					logger.Info("ERR",
-						zap.String("Error", err.Error()),
-					)
-				}
+
+				logger.
+				Error("Error",
+					zap.String("Path", c.Path()),
+					zap.String("Method", c.Request().Method),
+					zap.Any("Query Params", c.QueryParams()),
+					zap.Strings("Path Params", c.ParamValues()),
+					zap.String("Error", err.Error()),
+				)
 			}
-			return err 
+			return err
 		}
 	}
 }
