@@ -29,6 +29,7 @@ func (c *UserController) Mount(r *echo.Group) {
 	userR := r.Group("/users")
 
 	userR.POST("/register", c.Register)	
+	userR.POST("/login", c.Login)
 }
 
 func (c *UserController) Register(ectx echo.Context) error {
@@ -64,6 +65,55 @@ func (c *UserController) Register(ectx echo.Context) error {
 		responeChan <- *response.New(
 			"Successfully register user",
 			nil,
+			nil,
+		)
+	}()
+
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	case err := <- errChan:
+		return err 
+	case resp := <- responeChan:
+		return ectx.JSON(resp.Code, resp)
+	}
+}
+
+func (c *UserController) Login(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		responeChan = make(chan response.Response)
+		errChan = make(chan error)
+	)
+
+	go func () {
+		var (
+			req dto.UserLoginRequest
+		)
+
+		if err := ectx.Bind(&req); err != nil {
+			errChan <- err
+			return
+		}
+
+		if err := c.validator.Struct(req); err != nil {
+			errChan <- err
+			return
+		}
+
+		token, err := c.userSvc.LoginUser(ctx, &req)
+		if err != nil {
+			errChan <- err 
+			return
+		}
+
+		responeChan <- *response.New(
+			"Successfully register user",
+			echo.Map{
+				"token": token,
+			},
 			nil,
 		)
 	}()

@@ -17,6 +17,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
 	"github.com/devanfer02/ratemyubprof/pkg/config"
 	logger "github.com/devanfer02/ratemyubprof/pkg/log"
+	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -55,8 +56,10 @@ func NewHttpServer() *httpServer {
 }
 
 func (h *httpServer) mountHandlers() {
+	jwtHandler := util.NewJwtHandler(h.Env)
+
 	userRepo := user_repo.NewUserRepository(h.Database)
-	userSvc := user_svc.NewUserService(userRepo, h.Logger)
+	userSvc := user_svc.NewUserService(userRepo, jwtHandler, h.Logger)
 	userCtr := user_ctr.NewUserController(userSvc, h.Validator)
 
 	profSvc := prof_svc.NewProfessorService(h.Logger)

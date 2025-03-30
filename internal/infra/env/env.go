@@ -21,6 +21,11 @@ type Env struct {
 	Logger struct {
 		Type string `json:"type"`
 	}
+
+	Jwt struct {
+		SecretKey string `json:"secretKey"`
+		ExpiredTime int `json:"expiredTime"`
+	} `json:"jwt"`
 }
 
 func NewEnv() *Env {
