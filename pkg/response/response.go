@@ -20,6 +20,7 @@ func New(
 		Message: message,
 		Data:    data,
 		Meta:    meta,
+		Code:    200,
 	}
 }
 
@@ -29,8 +30,8 @@ func NewErr(
 ) *Response {
 	return &Response{
 		Message: message,
-		Code: code,
-		Err: errors.New(message),
+		Code:    code,
+		Err:     errors.New(message),
 	}
 }
 
@@ -44,8 +45,8 @@ func (r *Response) WithErr(err error) *Response {
 }
 
 func (r *Response) WithCode(code int) *Response {
-	r.Code = code 
-	return r 
+	r.Code = code
+	return r
 }
 
 func (r *Response) WithLocation(location string) *Response {
