@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	user_handler "github.com/devanfer02/ratemyubprof/internal/app/user/handler/http"
+	user_ctr "github.com/devanfer02/ratemyubprof/internal/app/user/controller"
 	user_repo "github.com/devanfer02/ratemyubprof/internal/app/user/repository"
 	user_svc "github.com/devanfer02/ratemyubprof/internal/app/user/service"
 
@@ -57,10 +57,10 @@ func NewHttpServer() *httpServer {
 	}
 }
 
-func (h *httpServer) MountHandlers() {
+func (h *httpServer) mountHandlers() {
 	userRepo := user_repo.NewUserRepository(h.Database)
-	userSvc := user_svc.NewUserService(userRepo)
-	userCtr := user_handler.NewUserHandler(userSvc, h.Validator)
+	userSvc := user_svc.NewUserService(userRepo, h.Logger)
+	userCtr := user_ctr.NewUserController(userSvc, h.Validator)
 
 	profSvc := prof_svc.NewProfessorService()
 	profCtr := prof_ctr.NewProfessorController(profSvc)
@@ -75,7 +75,7 @@ func (h *httpServer) MountHandlers() {
 func (h *httpServer) Start() {
 	h.Router.Use(middleware.ErrLogger(h.Logger))
 	h.Router.Use(middleware.RequestLogger(h.Logger))
-	h.MountHandlers()
+	h.mountHandlers()
 
 	for _, handler := range h.Handlers {
 		handler.Mount(h.Router.Group("/api/v1"))
