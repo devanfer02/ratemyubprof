@@ -1,4 +1,4 @@
-package validate
+package config
 
 import (
 	"reflect"
@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 )
+
 
 func NewValidator() *validator.Validate {
 	v := validator.New()

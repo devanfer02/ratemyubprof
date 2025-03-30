@@ -9,14 +9,17 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/pkg/helpers"
+	"go.uber.org/zap"
 )
 
 type professorService struct {
-
+	logger *zap.Logger
 }
 
-func NewProfessorService() contracts.ProfessorService {
-	return &professorService{}
+func NewProfessorService(logger *zap.Logger) contracts.ProfessorService {
+	return &professorService{
+		logger: logger,
+	}
 }
 
 func (s *professorService) FetchStaticProfessorData(param *dto.FetchProfessorParam) ([]dto.ProfessorStatic, error) {
@@ -28,16 +31,19 @@ func (s *professorService) FetchStaticProfessorData(param *dto.FetchProfessorPar
 
 	file, err := os.Open(fileName)
 	if err != nil {
+		s.logger.Error("[ProfessorService.FetchStaticProfessorData] failed to open file", zap.Error(err))
 		return nil, err 
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
+		s.logger.Error("[ProfessorService.FetchStaticProfessorData] failed to read file", zap.Error(err))
 		return nil, err
 	}
 
 	if err := sonic.Unmarshal(data, &professors); err != nil {
+		s.logger.Error("[ProfessorService.FetchStaticProfessorData] failed to unmarshal data", zap.Error(err))
 		return nil, err
 	}
 

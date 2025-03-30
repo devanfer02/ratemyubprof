@@ -2,18 +2,18 @@ package controller
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
-	"github.com/devanfer02/ratemyubprof/pkg/response"
+	"github.com/devanfer02/ratemyubprof/pkg/http/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
 type UserController struct {
 	userSvc contracts.UserService
+	validator *validator.Validate
 	timeout time.Duration
 }
 
@@ -21,6 +21,7 @@ func NewUserController(userSvc contracts.UserService, validator *validator.Valid
 	return &UserController{
 		userSvc: userSvc,
 		timeout: 10 * time.Second,
+		validator: validator,
 	}
 }
 
@@ -36,35 +37,27 @@ func (c *UserController) Register(ectx echo.Context) error {
 
 	var (
 		responeChan = make(chan response.Response)
+		errChan = make(chan error)
 	)
 
 	go func () {
-		defer close(responeChan)
-
 		var (
 			req dto.UserRegisterRequest
 		)
 
 		if err := ectx.Bind(&req); err != nil {
-			responeChan <- *response.New(
-				"Failed to bind request data",
-				nil,
-				nil,
-			).
-			WithErr(err).
-			WithCode(http.StatusBadRequest)
+			errChan <- err
+			return
+		}
+
+		if err := c.validator.Struct(req); err != nil {
+			errChan <- err
 			return
 		}
 
 		err := c.userSvc.RegisterUser(ctx, &req)
 		if err != nil {
-			responeChan <- *response.New(
-				"Failed to register user",
-				nil,
-				nil,
-			).
-			WithErr(err). 
-			WithCode(http.StatusInternalServerError)
+			errChan <- err 
 			return
 		}
 
@@ -78,6 +71,8 @@ func (c *UserController) Register(ectx echo.Context) error {
 	select {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
+	case err := <- errChan:
+		return err 
 	case resp := <- responeChan:
 		return ectx.JSON(resp.Code, resp)
 	}

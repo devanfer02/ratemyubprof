@@ -9,15 +9,14 @@ import (
 	user_repo "github.com/devanfer02/ratemyubprof/internal/app/user/repository"
 	user_svc "github.com/devanfer02/ratemyubprof/internal/app/user/service"
 
-	prof_svc "github.com/devanfer02/ratemyubprof/internal/app/professor/service"
 	prof_ctr "github.com/devanfer02/ratemyubprof/internal/app/professor/controller"
+	prof_svc "github.com/devanfer02/ratemyubprof/internal/app/professor/service"
 
 	"github.com/devanfer02/ratemyubprof/internal/infra/database"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
 	"github.com/devanfer02/ratemyubprof/pkg/config"
 	logger "github.com/devanfer02/ratemyubprof/pkg/log"
-	validate "github.com/devanfer02/ratemyubprof/pkg/validator"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -42,10 +41,8 @@ func NewHttpServer() *httpServer {
 	env := env.NewEnv()
 	db := database.NewDatabase(env)
 	logger := logger.NewLogger(env)
-	router := echo.New()
-	validator := validate.NewValidator()
-
-	router.JSONSerializer = config.NewSonicJSONSerializer()
+	router := config.NewRouter()
+	validator := config.NewValidator()
 
 	return &httpServer{
 		Env: env,
@@ -62,7 +59,7 @@ func (h *httpServer) mountHandlers() {
 	userSvc := user_svc.NewUserService(userRepo, h.Logger)
 	userCtr := user_ctr.NewUserController(userSvc, h.Validator)
 
-	profSvc := prof_svc.NewProfessorService()
+	profSvc := prof_svc.NewProfessorService(h.Logger)
 	profCtr := prof_ctr.NewProfessorController(profSvc)
 
 	h.Handlers = append(
