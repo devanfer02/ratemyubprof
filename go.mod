@@ -19,6 +19,7 @@ require (
 	github.com/cloudflare/circl v1.6.0 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/dnabil/siamauth v0.3.1 // indirect
+	github.com/doug-martin/goqu/v9 v9.19.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
@@ -42,6 +43,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/oklog/ulid/v2 v2.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
