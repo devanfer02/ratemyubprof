@@ -7,6 +7,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
+	"github.com/devanfer02/ratemyubprof/internal/middleware"
 	"github.com/devanfer02/ratemyubprof/pkg/http/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -15,12 +16,14 @@ import (
 type UserController struct {
 	userSvc contracts.UserService
 	validator *validator.Validate
+	mdlwr *middleware.Middleware
 	timeout time.Duration
 }
 
-func NewUserController(userSvc contracts.UserService, validator *validator.Validate) *UserController {
+func NewUserController(userSvc contracts.UserService, validator *validator.Validate, mdlwr *middleware.Middleware) *UserController {
 	return &UserController{
 		userSvc: userSvc,
+		mdlwr: mdlwr,
 		timeout: 10 * time.Second,
 		validator: validator,
 	}
@@ -31,7 +34,7 @@ func (c *UserController) Mount(r *echo.Group) {
 
 	userR.POST("/register", c.Register)	
 	userR.POST("/login", c.Login)
-	userR.POST("/refresh", c.RefreshToken)
+	userR.POST("/refresh" ,c.RefreshToken, c.mdlwr.Authenticate())
 }
 
 func (c *UserController) Register(ectx echo.Context) error {
