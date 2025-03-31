@@ -34,7 +34,7 @@ func (c *UserController) Mount(r *echo.Group) {
 
 	userR.POST("/register", c.Register)	
 	userR.POST("/login", c.Login)
-	userR.POST("/refresh" ,c.RefreshToken, c.mdlwr.Authenticate())
+	userR.POST("/refresh" ,c.RefreshToken)
 }
 
 func (c *UserController) Register(ectx echo.Context) error {

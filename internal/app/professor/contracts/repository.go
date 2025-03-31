@@ -12,4 +12,5 @@ type ProfessorRepositoryProvider interface {
 
 type ProfessorRepository interface {
 	InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error 	
+	InsertProfessorReview(ctx context.Context, review *entity.Review) error
 }
