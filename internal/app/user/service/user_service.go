@@ -46,7 +46,7 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 		return err 
 	}
 
-	hashed, err := util.HashPassword(usr.NewPassword)
+	hashed, err := util.HashPassword(usr.NewPassword) 
 	if err != nil {
 		return err 
 	}
