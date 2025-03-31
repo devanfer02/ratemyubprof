@@ -1,7 +1,6 @@
 package response
 
 type Response struct {
-	Code    int    `json:"int"`
 	Message string `json:"message"`
 	Data    any    `json:"data"`
 	Meta    any    `json:"meta,omitempty"`
@@ -19,7 +18,3 @@ func New(
 	}
 }
 
-func (r *Response) WithCode(code int) *Response {
-	r.Code = code
-	return r
-}

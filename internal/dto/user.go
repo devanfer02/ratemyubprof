@@ -11,3 +11,12 @@ type UserLoginRequest struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
+
+type UserTokenResponse struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
+type RefreshATRequest struct {
+	RefreshToken string `json:"refreshToken" validate:"required"`
+}

@@ -23,8 +23,10 @@ type Env struct {
 	}
 
 	Jwt struct {
-		SecretKey string `json:"secretKey"`
-		ExpiredTime int `json:"expiredTime"`
+		ATSecretKey string `json:"accessTokenSecretKey"`
+		ATExpiredTime int `json:"accessTokenExpiredTime"`
+		RTSecretKey string `json:"refreshTokenSecretKey"`
+		RTExpiredTime int `json:"refreshTokenExpiredTime"`
 	} `json:"jwt"`
 }
 

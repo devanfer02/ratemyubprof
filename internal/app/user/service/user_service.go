@@ -8,6 +8,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/oklog/ulid/v2"
 
+	"github.com/devanfer02/ratemyubprof/pkg/config"
 	"github.com/devanfer02/ratemyubprof/pkg/siam"
 	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"go.uber.org/zap"
@@ -15,13 +16,13 @@ import (
 
 type userService struct {
 	userRepo contracts.UserRepositoryProvider
-	jwtHandler *util.JwtHandler
+	jwtHandler *config.JwtHandler
 	logger *zap.Logger
 }
 
 func NewUserService(
 	userRepo contracts.UserRepositoryProvider, 
-	jwtHandler *util.JwtHandler,
+	jwtHandler *config.JwtHandler,
 	logger *zap.Logger,
 ) contracts.UserService {
 	return &userService{
@@ -63,26 +64,54 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 	return nil 
 }
 
-func (s *userService) LoginUser(ctx context.Context, usr *dto.UserLoginRequest) (string, error) {
+func (s *userService) LoginUser(ctx context.Context, usr *dto.UserLoginRequest) (dto.UserTokenResponse, error) {
 	repoClient, err := s.userRepo.NewClient(false)
 	if err != nil {
-		return "", err 
+		return dto.UserTokenResponse{}, err 
 	}
 
 	user, err := repoClient.FetchUserByUsername(ctx, usr.Username)
 	if err != nil {
-		return "", err 
+		return dto.UserTokenResponse{}, err 
 	}
 
 	if !util.CheckPasswordHash(usr.Password, user.Password) {
-		return "", contracts.ErrInvalidCredential
+		return dto.UserTokenResponse{}, contracts.ErrInvalidCredential
 	}
 
-	token, err := s.jwtHandler.GenerateToken(user.ID)
+	atToken, err := s.jwtHandler.GenerateToken(user.ID, config.AccessToken)
 
 	if err != nil {
-		return "", err 
+		return dto.UserTokenResponse{}, err 
 	}
 
-	return token, nil 
+	rtToken, err := s.jwtHandler.GenerateToken(user.ID, config.RefreshToken)
+
+	if err != nil {
+		return dto.UserTokenResponse{}, err 
+	}
+
+	return dto.UserTokenResponse{
+		AccessToken: atToken,
+		RefreshToken: rtToken,
+	}, nil 
+}
+
+func (s *userService) RefreshAccessToken(ctx context.Context, req dto.RefreshATRequest) (dto.UserTokenResponse, error) {
+	userId, err := s.jwtHandler.ValidateToken(req.RefreshToken, config.RefreshToken)
+
+	if err != nil {
+		return dto.UserTokenResponse{},contracts.ErrInvalidToken
+	}
+
+	atToken, err := s.jwtHandler.GenerateToken(userId, config.AccessToken)
+
+	if err != nil {
+		return dto.UserTokenResponse{}, err 
+	}
+
+	return dto.UserTokenResponse{
+		AccessToken: atToken,
+		RefreshToken: req.RefreshToken,
+	}, nil 
 }

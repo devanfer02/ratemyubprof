@@ -1,4 +1,4 @@
-package helpers
+package util
 
 func Filter[T any](slice []T, condition func(T) bool) []T {
 	var result []T
