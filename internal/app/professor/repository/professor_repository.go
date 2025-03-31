@@ -49,7 +49,7 @@ func (r *repository) NewClient(tx bool) (contracts.ProfessorRepository, error) {
 }
 
 
-func (u *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error {
+func (p *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error {
 	records := make([]goqu.Record, len(professors))
 	for i, d := range professors {
 		records[i] = goqu.Record{
@@ -74,9 +74,9 @@ func (u *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Contex
 		return err
 	}
 
-	query = u.conn.Rebind(query)
+	query = p.conn.Rebind(query)
 
-	_, err = u.conn.ExecContext(ctx, query, args...)
+	_, err = p.conn.ExecContext(ctx, query, args...)
 	if err != nil {
 
 		return err
@@ -85,3 +85,24 @@ func (u *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Contex
 	return nil
 }
 
+func (p *professorRepositoryImplPostgre) InsertProfessorReview(ctx context.Context, review *entity.Review) error {
+	qb := goqu.
+		Insert("professor_reviews").
+		Rows(review).
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return err
+	}
+
+	query = p.conn.Rebind(query)
+
+	_, err = p.conn.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

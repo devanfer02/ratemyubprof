@@ -10,6 +10,7 @@ import (
 	user_svc "github.com/devanfer02/ratemyubprof/internal/app/user/service"
 
 	prof_ctr "github.com/devanfer02/ratemyubprof/internal/app/professor/controller"
+	prof_repo "github.com/devanfer02/ratemyubprof/internal/app/professor/repository"
 	prof_svc "github.com/devanfer02/ratemyubprof/internal/app/professor/service"
 
 	"github.com/devanfer02/ratemyubprof/internal/infra/database"
@@ -62,8 +63,9 @@ func (h *httpServer) mountHandlers() {
 	userSvc := user_svc.NewUserService(userRepo, jwtHandler, h.Logger)
 	userCtr := user_ctr.NewUserController(userSvc, h.Validator, middleware)
 
-	profSvc := prof_svc.NewProfessorService(h.Logger)
-	profCtr := prof_ctr.NewProfessorController(profSvc)
+	profRepo := prof_repo.NewProfessorRepository(h.Database)
+	profSvc := prof_svc.NewProfessorService(h.Logger, profRepo)
+	profCtr := prof_ctr.NewProfessorController(profSvc, h.Validator)
 
 	h.Handlers = append(
 		h.Handlers, 
