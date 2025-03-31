@@ -18,7 +18,11 @@ run:
 
 .PHONY: seed 
 seed:
-	go run ./cmd/db/seed.go
+	go run ./cmd/db/seed/main.go
+
+.PHONY: migrate 
+migrate:
+	go run ./cmd/db/migrate/main.go
 
 .PHONY: air
 air:
