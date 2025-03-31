@@ -7,6 +7,14 @@ type ProfessorStatic struct {
 	ImgLink  string `json:"img"`
 }
 
+type ProfessorReviewRequest struct {
+	ProfessorID  string
+	UserID       string
+	Comment      string  `json:"comment" validate:"required"`
+	DiffRate     float32 `json:"diffRate" validate:"required,min=1,max=5"`
+	FriendlyRate float32 `json:"friendlyRate" validate:"required,min=1,max=5"`
+}
+
 type FetchProfessorParam struct {
 	Name    string
 	Faculty string
