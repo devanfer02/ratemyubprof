@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
@@ -71,7 +72,7 @@ func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error 
 	case err := <- errChan:
 		return err 
 	case resp := <- responeChan:
-		return ectx.JSON(resp.Code, resp)
+		return ectx.JSON(http.StatusOK, resp)
 	}
 	
 }

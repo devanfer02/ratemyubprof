@@ -55,9 +55,12 @@ func NewHttpServer() *httpServer {
 }
 
 func (h *httpServer) mountHandlers() {
+	jwtHandler := config.NewJwtHandler(h.Env)
+	middleware := middleware.NewMiddleware(jwtHandler)
+
 	userRepo := user_repo.NewUserRepository(h.Database)
-	userSvc := user_svc.NewUserService(userRepo, h.Logger)
-	userCtr := user_ctr.NewUserController(userSvc, h.Validator)
+	userSvc := user_svc.NewUserService(userRepo, jwtHandler, h.Logger)
+	userCtr := user_ctr.NewUserController(userSvc, h.Validator, middleware)
 
 	profSvc := prof_svc.NewProfessorService(h.Logger)
 	profCtr := prof_ctr.NewProfessorController(profSvc)

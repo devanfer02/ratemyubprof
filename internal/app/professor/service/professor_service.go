@@ -8,7 +8,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
-	"github.com/devanfer02/ratemyubprof/pkg/helpers"
+	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"go.uber.org/zap"
 )
 
@@ -47,7 +47,7 @@ func (s *professorService) FetchStaticProfessorData(param *dto.FetchProfessorPar
 		return nil, err
 	}
 
-	professors = helpers.Filter(professors, func(p dto.ProfessorStatic) bool {
+	professors = util.Filter(professors, func(p dto.ProfessorStatic) bool {
 		if param.Name != "" && !strings.Contains(strings.ToLower(p.Name), strings.ToLower(param.Name)) {
 			return false
 		}

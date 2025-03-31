@@ -11,5 +11,6 @@ type UserRepositoryProvider interface {
 }
 
 type UserRepository interface {
+	FetchUserByUsername(ctx context.Context, username string) (*entity.User, error)
 	InsertUser(ctx context.Context, user *entity.User) error 	
 }
