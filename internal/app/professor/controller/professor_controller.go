@@ -7,6 +7,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
+	"github.com/devanfer02/ratemyubprof/internal/middleware"
 	"github.com/devanfer02/ratemyubprof/pkg/http/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -15,13 +16,16 @@ import (
 type ProfessorController struct {
 	profSvc contracts.ProfessorService
 	validator *validator.Validate
+	mdlwr *middleware.Middleware
 	timeout time.Duration
 }
 
-func NewProfessorController(profSvc contracts.ProfessorService, validator *validator.Validate) *ProfessorController {
+func NewProfessorController(profSvc contracts.ProfessorService, validator *validator.Validate, mdlwr *middleware.Middleware) *ProfessorController {
 	return &ProfessorController{
 		profSvc: profSvc,
 		timeout: 5 * time.Second,
+		mdlwr: mdlwr,
+		validator: validator,
 	}
 }
 
@@ -29,6 +33,7 @@ func (c *ProfessorController) Mount(r *echo.Group) {
 	profR := r.Group("/professors")
 
 	profR.GET("/static", c.FetchStaticProfessorData)
+	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate())
 }
 
 func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error {
@@ -100,7 +105,7 @@ func (c *ProfessorController) CreateReview(ectx echo.Context) error {
 			errChan <- err 
 		}
 
-		if err := c.validator.Struct(&req); err != nil {
+		if err := c.validator.Struct(req); err != nil {
 			errChan <- err 
 		}
 

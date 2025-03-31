@@ -65,7 +65,7 @@ func (h *httpServer) mountHandlers() {
 
 	profRepo := prof_repo.NewProfessorRepository(h.Database)
 	profSvc := prof_svc.NewProfessorService(h.Logger, profRepo)
-	profCtr := prof_ctr.NewProfessorController(profSvc, h.Validator)
+	profCtr := prof_ctr.NewProfessorController(profSvc, h.Validator, middleware)
 
 	h.Handlers = append(
 		h.Handlers, 

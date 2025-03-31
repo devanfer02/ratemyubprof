@@ -12,6 +12,7 @@ import (
 
 var (
 	professorTableName = "professors"
+	reviewTableName    = "reviews"
 )
 
 type repository struct {
@@ -30,8 +31,8 @@ func NewProfessorRepository(conn *sqlx.DB) contracts.ProfessorRepositoryProvider
 
 func (r *repository) NewClient(tx bool) (contracts.ProfessorRepository, error) {
 	var (
-		conn  sqlx.ExtContext
-		err error
+		conn sqlx.ExtContext
+		err  error
 	)
 
 	if tx {
@@ -48,24 +49,23 @@ func (r *repository) NewClient(tx bool) (contracts.ProfessorRepository, error) {
 	}, nil
 }
 
-
 func (p *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error {
 	records := make([]goqu.Record, len(professors))
 	for i, d := range professors {
 		records[i] = goqu.Record{
-			"id": d.ID,
-			"name": d.Name,
-			"faculty": d.Faculty,
-			"major": d.Major,
+			"id":               d.ID,
+			"name":             d.Name,
+			"faculty":          d.Faculty,
+			"major":            d.Major,
 			"profile_img_link": d.ProfileImgLink,
-			"created_at": time.Now(),
-			"updated_at": time.Now(),
+			"created_at":       time.Now(),
+			"updated_at":       time.Now(),
 		}
 	}
 
 	qb := goqu.
 		Insert(professorTableName).
-		Rows(records). 
+		Rows(records).
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)
 
@@ -87,7 +87,7 @@ func (p *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Contex
 
 func (p *professorRepositoryImplPostgre) InsertProfessorReview(ctx context.Context, review *entity.Review) error {
 	qb := goqu.
-		Insert("professor_reviews").
+		Insert(reviewTableName).
 		Rows(review).
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)
