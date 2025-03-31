@@ -1,8 +1,6 @@
 package env
 
 import (
-	"fmt"
-
 	"github.com/spf13/viper"
 )
 
@@ -46,8 +44,6 @@ func NewEnv() *Env {
 	if err := viper.Unmarshal(&env); err != nil {
 		panic(err)
 	}
-
-	fmt.Println("Env: ", env)
 
 	return &env
 }

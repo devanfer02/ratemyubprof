@@ -14,7 +14,11 @@ help:
 
 .PHONY: run
 run:
-	go run ./app/cmd/main.go
+	go run ./cmd/main/main.go
+
+.PHONY: seed 
+seed:
+	go run ./cmd/db/seed.go
 
 .PHONY: air
 air:
