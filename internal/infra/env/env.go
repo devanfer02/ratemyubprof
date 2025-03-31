@@ -1,6 +1,10 @@
 package env
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+
+	"github.com/spf13/viper"
+)
 
 type Env struct {
 	Database struct {
@@ -20,20 +24,20 @@ type Env struct {
 
 	Logger struct {
 		Type string `json:"type"`
-	}
+	} `json:"logger"`
 
 	Jwt struct {
-		ATSecretKey string `json:"accessTokenSecretKey"`
-		ATExpiredTime int `json:"accessTokenExpiredTime"`
-		RTSecretKey string `json:"refreshTokenSecretKey"`
-		RTExpiredTime int `json:"refreshTokenExpiredTime"`
+		ATSecretKey   string `json:"atSecretKey"`
+		ATExpiredTime int    `json:"atExpiredTime"`
+		RTSecretKey   string `json:"rtSecretKey"`
+		RTExpiredTime int    `json:"rtExpiredTime"`
 	} `json:"jwt"`
 }
 
 func NewEnv() *Env {
 	env := Env{}
 
-	viper.SetConfigFile("./env.json")
+	viper.SetConfigFile("env.json")
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
@@ -42,6 +46,8 @@ func NewEnv() *Env {
 	if err := viper.Unmarshal(&env); err != nil {
 		panic(err)
 	}
+
+	fmt.Println("Env: ", env)
 
 	return &env
 }

@@ -42,7 +42,7 @@ func (j *JwtHandler) GenerateToken(id string, tokenType TokenType) (string, erro
 	claim := jwt.RegisteredClaims{
 		ID:        id,
 		Issuer:    "dvnnfrr/ratemyubprof",
-		Subject:   "user",
+		Subject:   "user-access",
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiration)),
 	}
