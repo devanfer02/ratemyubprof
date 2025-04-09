@@ -33,7 +33,51 @@ func (c *ProfessorController) Mount(r *echo.Group) {
 	profR := r.Group("/professors")
 
 	profR.GET("/static", c.FetchStaticProfessorData)
+	profR.GET("/", c.FetchAll)
 	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate())
+}
+
+func (c *ProfessorController) FetchAll(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		responseChan = make(chan response.Response)
+		errChan      = make(chan error)
+	)
+
+	go func() {
+		defer close(responseChan)
+
+		var (
+			pageQuery dto.PaginationQuery
+			queryParam dto.FetchProfessorParam
+		)
+
+		ectx.Bind(&pageQuery)
+		ectx.Bind(&queryParam)
+
+		professors, err := c.profSvc.FetchAllProfessors(ctx, &queryParam, &pageQuery)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		responseChan <- *response.New(
+			"Successfully fetched all professors",
+			professors,
+			nil,
+		)
+	}()
+
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	case err := <-errChan:
+		return err
+	case resp := <-responseChan:
+		return ectx.JSON(http.StatusOK, resp)
+	}
 }
 
 func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error {
@@ -57,7 +101,7 @@ func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error 
 		fetchQuery := dto.FetchProfessorParam{
 			Name: nameQuery,
 			Faculty: facultyQuery,
-			Prodi: prodiQuery,
+			Major: prodiQuery,
 		}
 
 		professors, err := c.profSvc.FetchStaticProfessorData(&fetchQuery)

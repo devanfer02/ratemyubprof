@@ -27,6 +27,22 @@ func NewProfessorService(logger *zap.Logger, profRepo contracts.ProfessorReposit
 	}
 }
 
+func (s *professorService) FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]dto.ProfessorResponse, error) {
+	repoClient, err := s.profRepo.NewClient(false)
+	if err != nil {
+		return nil, err 
+	}
+
+	professors, err := repoClient.FetchAllProfessors(ctx, params, pageQuery)
+	if err != nil {
+		return nil, err 
+	}
+
+	responses := formatter.FormatProfessorEntityToDto(professors)
+
+	return responses, nil
+}
+
 func (s *professorService) FetchStaticProfessorData(param *dto.FetchProfessorParam) ([]dto.ProfessorStatic, error) {
 	var (
 		err error 
@@ -59,7 +75,7 @@ func (s *professorService) FetchStaticProfessorData(param *dto.FetchProfessorPar
 		if param.Faculty != "" && !strings.Contains(strings.ToLower(p.Fakultas), strings.ToLower(param.Faculty)) {
 			return false
 		}
-		if param.Prodi != "" && !strings.Contains(strings.ToLower(p.Prodi), strings.ToLower(param.Prodi)) {
+		if param.Major != "" && !strings.Contains(strings.ToLower(p.Prodi), strings.ToLower(param.Major)) {
 			return false
 		}
 		return true

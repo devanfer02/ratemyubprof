@@ -6,6 +6,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
+	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
@@ -47,6 +48,50 @@ func (r *repository) NewClient(tx bool) (contracts.ProfessorRepository, error) {
 	return &professorRepositoryImplPostgre{
 		conn: conn,
 	}, nil
+}
+
+func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]entity.Professor, error) {
+	var professors []entity.Professor
+
+	qb := goqu.
+		Select("id", "name", "faculty", "major", "profile_img_link").
+		From(professorTableName).
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	if params.Faculty != "" {
+		qb = qb.Where(goqu.Ex{"faculty": params.Faculty})
+	}
+
+	if params.Major != "" {
+		qb = qb.Where(goqu.Ex{"major": params.Major})
+	}
+
+	if pageQuery != nil {
+		qb = qb.Offset(pageQuery.Page * pageQuery.Limit).Limit(pageQuery.Limit)
+	}
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return nil, err
+	}
+
+	query = p.conn.Rebind(query)
+	
+	rows, err := p.conn.QueryxContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var professor entity.Professor
+		if err := rows.StructScan(&professor); err != nil {
+			return nil, err
+		}
+		professors = append(professors, professor)
+	}
+
+	return professors, nil
 }
 
 func (p *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error {

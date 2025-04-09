@@ -8,15 +8,25 @@ type ProfessorStatic struct {
 }
 
 type ProfessorReviewRequest struct {
-	ProfessorID  string  `param:"id" validate:"required"`
-	UserID       string  
+	ProfessorID  string `param:"id" validate:"required"`
+	UserID       string
 	Comment      string  `json:"comment" validate:"required"`
 	DiffRate     float32 `json:"diffRate" validate:"required,min=1,max=5"`
 	FriendlyRate float32 `json:"friendlyRate" validate:"required,min=1,max=5"`
 }
 
+type ProfessorResponse struct {
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	Faculty        string `json:"faculty"`
+	Major          string `json:"major"`
+	ProfileImgLink string `json:"profileImgLink"`
+	CreatedAt      string `json:"createdAt"`
+	UpdatedAt      string `json:"updatedAt"`
+}
+
 type FetchProfessorParam struct {
 	Name    string
 	Faculty string
-	Prodi   string
+	Major   string
 }
