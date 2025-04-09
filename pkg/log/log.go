@@ -1,8 +1,6 @@
 package logger
 
 import (
-	"time"
-
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 	"go.uber.org/zap"
 )
@@ -23,7 +21,7 @@ func NewLogger(env *env.Env) *zap.Logger {
 
 	cfg.OutputPaths = []string{
 		"stdout",
-		"internal/logs/" + time.Now().Format("2006-01-02") + ".log",
+		"internal/logs/app.log",
 	}
 
 	logger, err := cfg.Build()
