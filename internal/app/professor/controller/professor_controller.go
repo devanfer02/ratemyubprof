@@ -32,7 +32,6 @@ func NewProfessorController(profSvc contracts.ProfessorService, validator *valid
 func (c *ProfessorController) Mount(r *echo.Group) {
 	profR := r.Group("/professors")
 
-	profR.GET("/static", c.FetchStaticProfessorData)
 	profR.GET("/", c.FetchAll)
 	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate())
 }
@@ -78,54 +77,6 @@ func (c *ProfessorController) FetchAll(ectx echo.Context) error {
 	case resp := <-responseChan:
 		return ectx.JSON(http.StatusOK, resp)
 	}
-}
-
-func (c *ProfessorController) FetchStaticProfessorData(ectx echo.Context) error {
-	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
-	defer cancel()
-
-	var (
-		responeChan = make(chan response.Response)
-		errChan = make(chan error)
-	)
-
-	go func () {
-		defer close(responeChan)
-
-		var (
-			nameQuery = ectx.QueryParam("name")
-			facultyQuery = ectx.QueryParam("faculty")
-			prodiQuery = ectx.QueryParam("prodi")
-		)
-
-		fetchQuery := dto.FetchProfessorParam{
-			Name: nameQuery,
-			Faculty: facultyQuery,
-			Major: prodiQuery,
-		}
-
-		professors, err := c.profSvc.FetchStaticProfessorData(&fetchQuery)
-		if err != nil {
-			errChan <- err 
-			return
-		}
-
-		responeChan <- *response.New(
-			"Successfully fetch professors data from static file",
-			professors,
-			nil,
-		)
-	}()
-
-	select {
-	case <-ctx.Done():
-		return contracts.ErrRequestTimeout
-	case err := <- errChan:
-		return err 
-	case resp := <- responeChan:
-		return ectx.JSON(http.StatusOK, resp)
-	}
-	
 }
 
 func (c *ProfessorController) CreateReview(ectx echo.Context) error {
