@@ -3,34 +3,13 @@ package service
 import (
 	"context"
 
-	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/oklog/ulid/v2"
 
-	"github.com/devanfer02/ratemyubprof/pkg/config"
 	"github.com/devanfer02/ratemyubprof/pkg/siam"
 	"github.com/devanfer02/ratemyubprof/pkg/util"
-	"go.uber.org/zap"
 )
-
-type userService struct {
-	userRepo contracts.UserRepositoryProvider
-	jwtHandler *config.JwtHandler
-	logger *zap.Logger
-}
-
-func NewUserService(
-	userRepo contracts.UserRepositoryProvider, 
-	jwtHandler *config.JwtHandler,
-	logger *zap.Logger,
-) contracts.UserService {
-	return &userService{
-		jwtHandler: jwtHandler,
-		userRepo: userRepo,
-		logger: logger,
-	}
-}
 
 func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterRequest) error {
 	authMgr := siam.NewSiamAuthManager()

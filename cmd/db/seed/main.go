@@ -10,7 +10,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/repository"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
-	"github.com/devanfer02/ratemyubprof/internal/infra/database"
+	"github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
 )
@@ -19,7 +19,7 @@ func main() {
 	var (
 		err        error
 		professors []dto.ProfessorStatic
-		entities []entity.Professor
+		entities   []entity.Professor
 		fileName   = "data/dosenub.json"
 	)
 

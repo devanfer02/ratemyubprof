@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/devanfer02/ratemyubprof/internal/infra/database"
+	"github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -19,7 +19,7 @@ func main() {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://./internal/infra/database/migrations",
+		"file://./internal/infra/database/postgres/migrations",
 		env.Database.Name, driver,
 	)
 

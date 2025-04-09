@@ -20,7 +20,7 @@ import (
 	prof_repo "github.com/devanfer02/ratemyubprof/internal/app/professor/repository"
 	prof_svc "github.com/devanfer02/ratemyubprof/internal/app/professor/service"
 
-	"github.com/devanfer02/ratemyubprof/internal/infra/database"
+	"github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
 	"github.com/devanfer02/ratemyubprof/pkg/config"
