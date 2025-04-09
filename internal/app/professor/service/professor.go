@@ -3,25 +3,11 @@ package service
 import (
 	"context"
 
-	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
-	"github.com/oklog/ulid/v2"
-	"go.uber.org/zap"
 )
 
-type professorService struct {
-	profRepo contracts.ProfessorRepositoryProvider
-	logger *zap.Logger
-}
-
-func NewProfessorService(logger *zap.Logger, profRepo contracts.ProfessorRepositoryProvider) contracts.ProfessorService {
-	return &professorService{
-		logger: logger,
-		profRepo: profRepo,
-	}
-}
 
 func (s *professorService) FetchAllProfessors(
 	ctx context.Context, 
@@ -70,20 +56,3 @@ func (s *professorService) FetchProfessorByID(ctx context.Context, id string) (d
 	return response, nil 
 }
 
-func (s *professorService) CreateReview(ctx context.Context, param *dto.ProfessorReviewRequest) error {
-	repoClient, err := s.profRepo.NewClient(false)
-	if err != nil {
-		return err 
-	}
-
-	entity := formatter.FormatReviewToEntity(param)
-	entity.ID = ulid.Make().String()
-	err = repoClient.InsertProfessorReview(ctx, &entity)
-
-	if err != nil {
-		return err 
-	}
-
-
-	return nil
-}
