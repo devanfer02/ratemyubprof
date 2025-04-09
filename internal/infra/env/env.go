@@ -18,6 +18,7 @@ type Env struct {
 		Port    string `json:"port"`
 		Version string `json:"version"`
 		Name    string `json:"name"`
+		Env     string `json:"env"`
 	} `json:"app"`
 
 	Logger struct {

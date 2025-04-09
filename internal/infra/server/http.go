@@ -83,6 +83,9 @@ func (h *httpServer) Start() {
 		handler.Mount(h.Router.Group("/api/v1"))
 	}
 	
+	if h.Env.App.Env == "development" {
+		h.logRoutes()
+	}
 	h.Logger.Info("Starting up the application....")
 	h.Router.Start(":" + h.Env.App.Port)
 }
@@ -102,4 +105,12 @@ func (h *httpServer) GracefullyShutdown() {
 		<- sigChan
 		h.shutdown()
 	}()
+}
+
+func (h *httpServer) logRoutes() {
+	h.Logger.Info("------------ Registered Routes ------------")
+	for _, route := range h.Router.Routes() {
+		h.Logger.Info(route.Method + " " + route.Path)
+	}
+	h.Logger.Info("-------------------------------------------")
 }
