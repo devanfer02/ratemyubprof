@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
+	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
+	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
@@ -47,6 +49,66 @@ func (r *repository) NewClient(tx bool) (contracts.ProfessorRepository, error) {
 	return &professorRepositoryImplPostgre{
 		conn: conn,
 	}, nil
+}
+
+func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]entity.Professor, error) {
+	var professors []entity.Professor
+
+	qb := goqu.
+		Select("id", "name", "faculty", "major", "profile_img_link").
+		From(professorTableName).
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	qb = util.AddParamsToFetchProf(qb, params)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return nil, err
+	}
+
+	query = p.conn.Rebind(query)
+	
+	rows, err := p.conn.QueryxContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var professor entity.Professor
+		if err := rows.StructScan(&professor); err != nil {
+			return nil, err
+		}
+		professors = append(professors, professor)
+	}
+
+	return professors, nil
+}
+
+func (p *professorRepositoryImplPostgre) GetProfessorItems(ctx context.Context, params *dto.FetchProfessorParam) (int64, error) {
+	var count int64
+
+	qb := goqu.
+		From(professorTableName).
+		Select(goqu.COUNT(goqu.Star())).
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	qb = util.AddParamsToFetchProf(qb, params)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return 0, err
+	}
+
+	query = p.conn.Rebind(query)
+
+	err = p.conn.QueryRowxContext(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (p *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error {

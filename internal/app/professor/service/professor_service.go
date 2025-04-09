@@ -2,11 +2,7 @@ package service
 
 import (
 	"context"
-	"io"
-	"os"
-	"strings"
 
-	"github.com/bytedance/sonic"
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/pkg/util"
@@ -27,45 +23,35 @@ func NewProfessorService(logger *zap.Logger, profRepo contracts.ProfessorReposit
 	}
 }
 
-func (s *professorService) FetchStaticProfessorData(param *dto.FetchProfessorParam) ([]dto.ProfessorStatic, error) {
-	var (
-		err error 
-		professors []dto.ProfessorStatic
-		fileName = "data/dosenub.json"
-	)
-
-	file, err := os.Open(fileName)
+func (s *professorService) FetchAllProfessors(
+	ctx context.Context, 
+	params *dto.FetchProfessorParam, 
+	pageQuery *dto.PaginationQuery,
+) (
+	[]dto.ProfessorResponse, 
+	dto.PaginationResponse,
+	error,
+) {
+	repoClient, err := s.profRepo.NewClient(false)
 	if err != nil {
-		s.logger.Error("[ProfessorService.FetchStaticProfessorData] failed to open file", zap.Error(err))
-		return nil, err 
+		return nil, dto.PaginationResponse{}, err 
 	}
-	defer file.Close()
 
-	data, err := io.ReadAll(file)
+	professors, err := repoClient.FetchAllProfessors(ctx, params, pageQuery)
 	if err != nil {
-		s.logger.Error("[ProfessorService.FetchStaticProfessorData] failed to read file", zap.Error(err))
-		return nil, err
+		return nil, dto.PaginationResponse{}, err 
 	}
 
-	if err := sonic.Unmarshal(data, &professors); err != nil {
-		s.logger.Error("[ProfessorService.FetchStaticProfessorData] failed to unmarshal data", zap.Error(err))
-		return nil, err
+	items, err := repoClient.GetProfessorItems(ctx, params)
+	if err != nil {
+		return nil, dto.PaginationResponse{}, err 
 	}
 
-	professors = util.Filter(professors, func(p dto.ProfessorStatic) bool {
-		if param.Name != "" && !strings.Contains(strings.ToLower(p.Name), strings.ToLower(param.Name)) {
-			return false
-		}
-		if param.Faculty != "" && !strings.Contains(strings.ToLower(p.Fakultas), strings.ToLower(param.Faculty)) {
-			return false
-		}
-		if param.Prodi != "" && !strings.Contains(strings.ToLower(p.Prodi), strings.ToLower(param.Prodi)) {
-			return false
-		}
-		return true
-	})
+	pageMeta := util.GetPagination(uint(items), pageQuery.Limit, pageQuery.Page)
 
-	return professors, nil
+	responses := formatter.FormatProfessorEntityToDto(professors)
+
+	return responses, pageMeta, nil
 }
 
 func (s *professorService) CreateReview(ctx context.Context, param *dto.ProfessorReviewRequest) error {
