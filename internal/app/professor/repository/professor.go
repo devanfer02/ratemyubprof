@@ -73,8 +73,8 @@ func (p *professorRepositoryImplPostgre) FetchProfessorByID(ctx context.Context,
 	return professor, nil
 }
 
-func (p *professorRepositoryImplPostgre) GetProfessorItems(ctx context.Context, params *dto.FetchProfessorParam) (int64, error) {
-	var count int64
+func (p *professorRepositoryImplPostgre) GetProfessorItems(ctx context.Context, params *dto.FetchProfessorParam) (uint64, error) {
+	var count uint64
 
 	qb := goqu.
 		From(professorTableName).

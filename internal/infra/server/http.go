@@ -98,7 +98,10 @@ func (h *httpServer) Start() {
 		h.logRoutes()
 	}
 	h.Logger.Info("Starting up the application....")
-	h.Router.Start(":" + h.Env.App.Port)
+	
+	if err := h.Router.Start(":" + h.Env.App.Port); err != nil {
+		panic(err)
+	}
 }
 
 func (h *httpServer) shutdown() {
