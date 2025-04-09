@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Noooste/azuretls-client"
-	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
+	"github.com/devanfer02/ratemyubprof/internal/app/auth/contracts"
 	"go.uber.org/zap"
 )
 

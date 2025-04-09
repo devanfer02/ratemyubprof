@@ -1,13 +1,20 @@
 package server
 
 import (
+	"context"
+	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
+	"time"
 
 	user_ctr "github.com/devanfer02/ratemyubprof/internal/app/user/controller"
 	user_repo "github.com/devanfer02/ratemyubprof/internal/app/user/repository"
 	user_svc "github.com/devanfer02/ratemyubprof/internal/app/user/service"
+
+	auth_ctr "github.com/devanfer02/ratemyubprof/internal/app/auth/controller"
+	auth_svc "github.com/devanfer02/ratemyubprof/internal/app/auth/service"
 
 	prof_ctr "github.com/devanfer02/ratemyubprof/internal/app/professor/controller"
 	prof_repo "github.com/devanfer02/ratemyubprof/internal/app/professor/repository"
@@ -60,17 +67,21 @@ func (h *httpServer) mountHandlers() {
 	middleware := middleware.NewMiddleware(jwtHandler)
 
 	userRepo := user_repo.NewUserRepository(h.Database)
-	userSvc := user_svc.NewUserService(userRepo, jwtHandler, h.Logger)
-	userCtr := user_ctr.NewUserController(userSvc, h.Validator, middleware)
-
 	profRepo := prof_repo.NewProfessorRepository(h.Database)
+	
 	profSvc := prof_svc.NewProfessorService(h.Logger, profRepo)
+	userSvc := user_svc.NewUserService(userRepo, jwtHandler, h.Logger)
+	authSvc := auth_svc.NewAuthService(userRepo, jwtHandler, h.Logger)
+
 	profCtr := prof_ctr.NewProfessorController(profSvc, h.Validator, middleware)
+	userCtr := user_ctr.NewUserController(userSvc, h.Validator, middleware)
+	authCtr := auth_ctr.NewAuthController(authSvc, h.Validator, middleware)
 
 	h.Handlers = append(
 		h.Handlers, 
 		userCtr,
 		profCtr,
+		authCtr,
 	)
 }
 
@@ -92,9 +103,42 @@ func (h *httpServer) Start() {
 
 func (h *httpServer) shutdown() {
 	h.Logger.Info("Shutting down application...")
-	h.Database.Close()
-	h.Logger.Sync()
-	h.Router.Close()
+
+	timeoutFunc := time.AfterFunc(5 * time.Second, func() {
+		log.Println("Timeout, forcefully shutting down...")
+	})
+
+	defer timeoutFunc.Stop()
+
+	operations := map[string]func(ctx context.Context) error {
+		"database": func(ctx context.Context) error {
+			return h.Database.Close()
+		},
+		"logger": func(ctx context.Context) error {
+			return h.Logger.Sync()
+		},
+		"router": func(ctx context.Context) error {
+			return h.Router.Close()
+		},
+	}
+
+	var wg sync.WaitGroup
+	
+	for key, operation := range operations {
+		wg.Add(1)
+		go func(op func(ctx context.Context) error, name string) {
+			defer wg.Done()
+
+			log.Printf("Cleaning up %s...", name)
+			if err := op(context.Background()); err != nil {
+				log.Printf("Error cleaning up %s: %v", name, err)
+			} else {
+				log.Printf("%s cleaned up successfully", name)
+			}
+		}(operation, key)
+	}
+
+	wg.Wait()
 }
 
 func (h *httpServer) GracefullyShutdown() {
