@@ -33,6 +33,7 @@ func (c *ProfessorController) Mount(r *echo.Group) {
 	profR := r.Group("/professors")
 
 	profR.GET("", c.FetchAll)
+	profR.GET("/:id", c.FetchByID)
 	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate())
 }
 
@@ -73,6 +74,43 @@ func (c *ProfessorController) FetchAll(ectx echo.Context) error {
 			"Successfully fetched all professors",
 			professors,
 			meta,
+		)
+	}()
+
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	case err := <-errChan:
+		return err
+	case resp := <-responseChan:
+		return ectx.JSON(http.StatusOK, resp)
+	}
+}
+
+func (c *ProfessorController) FetchByID(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		responseChan = make(chan response.Response)
+		errChan      = make(chan error)
+	)
+
+	go func() {
+		defer close(responseChan)
+
+		profId := ectx.Param("id")
+
+		professor, err := c.profSvc.FetchProfessorByID(ctx, profId)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		responseChan <- *response.New(
+			"Successfully fetched professor",
+			professor,
+			nil,
 		)
 	}()
 

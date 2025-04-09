@@ -49,9 +49,25 @@ func (s *professorService) FetchAllProfessors(
 
 	pageMeta := util.GetPagination(uint(items), pageQuery.Limit, pageQuery.Page)
 
-	responses := formatter.FormatProfessorEntityToDto(professors)
+	responses := formatter.FormatProfessorEntitiesToDto(professors)
 
 	return responses, pageMeta, nil
+}
+
+func (s *professorService) FetchProfessorByID(ctx context.Context, id string) (dto.ProfessorResponse, error) {
+	repoClient, err := s.profRepo.NewClient(false)
+	if err != nil {
+		return dto.ProfessorResponse{}, err 
+	}
+
+	professor, err := repoClient.FetchProfessorByID(ctx, id)
+	if err != nil {
+		return dto.ProfessorResponse{}, err 
+	}
+
+	response := formatter.FormatProfessorEntityToDto(professor)
+
+	return response, nil 
 }
 
 func (s *professorService) CreateReview(ctx context.Context, param *dto.ProfessorReviewRequest) error {

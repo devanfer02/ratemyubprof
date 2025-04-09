@@ -85,6 +85,30 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 	return professors, nil
 }
 
+func (p *professorRepositoryImplPostgre) FetchProfessorByID(ctx context.Context, id string) (entity.Professor, error) {
+	var professor entity.Professor
+	qb := goqu.
+		Select("id", "name", "faculty", "major", "profile_img_link").
+		From(professorTableName).
+		Where(goqu.I("id").Eq(id)).
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return professor, err
+	}
+
+	query = p.conn.Rebind(query)
+	
+	err = p.conn.QueryRowxContext(ctx, query, args...).StructScan(&professor)
+	if err != nil {
+		return professor, err
+	}
+
+	return professor, nil
+}
+
 func (p *professorRepositoryImplPostgre) GetProfessorItems(ctx context.Context, params *dto.FetchProfessorParam) (int64, error) {
 	var count int64
 
