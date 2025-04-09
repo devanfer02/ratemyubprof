@@ -10,8 +10,6 @@ import (
 var (
 	ErrRequestTimeout    = apperr.New(http.StatusRequestTimeout, "http request timeout")
 	ErrUsernameTaken     = apperr.New(http.StatusConflict, "username is already taken")
-	ErrInvalidCredential = apperr.New(http.StatusUnauthorized, "invalid credential")
-	ErrInvalidToken      = apperr.New(http.StatusUnauthorized, "invalid token")
 
 	PgsqlUniqueViolationErr = pq.ErrorCode("23505")
 )
