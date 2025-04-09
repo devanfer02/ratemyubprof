@@ -7,6 +7,6 @@ import (
 )
 
 type ProfessorService interface {
-	FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]dto.ProfessorResponse, error)
+	FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]dto.ProfessorResponse, dto.PaginationResponse, error)
 	CreateReview(ctx context.Context, param *dto.ProfessorReviewRequest) error
 }

@@ -13,6 +13,7 @@ type ProfessorRepositoryProvider interface {
 
 type ProfessorRepository interface {
 	FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]entity.Professor, error)
+	CountProfessor(ctx context.Context) (int64, error)
 	InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error 	
 	InsertProfessorReview(ctx context.Context, review *entity.Review) error
 }

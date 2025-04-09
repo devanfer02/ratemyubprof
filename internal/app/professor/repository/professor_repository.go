@@ -94,6 +94,30 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 	return professors, nil
 }
 
+func (p *professorRepositoryImplPostgre) CountProfessor(ctx context.Context) (int64, error) {
+	var count int64
+
+	qb := goqu.
+		Select("COUNT(*)").
+		From(professorTableName).
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return 0, err
+	}
+
+	query = p.conn.Rebind(query)
+
+	err = p.conn.QueryRowxContext(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (p *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error {
 	records := make([]goqu.Record, len(professors))
 	for i, d := range professors {

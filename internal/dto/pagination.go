@@ -1,11 +1,11 @@
 package dto
 
 type PaginationResponse struct {
-	TotalItems uint64 `json:"totalItems"`
-	TotalPages uint32 `json:"totalPages"`
-	Current    uint32 `json:"current"`
-	Next       uint32 `json:"next"`
-	Prev       uint32 `json:"prev"`
+	TotalItems uint `json:"totalItems"`
+	TotalPages uint `json:"totalPages"`
+	Current    uint `json:"current"`
+	Next       uint `json:"next"`
+	Prev       uint `json:"prev"`
 }
 
 type PaginationQuery struct {

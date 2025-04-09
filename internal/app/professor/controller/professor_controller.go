@@ -56,7 +56,7 @@ func (c *ProfessorController) FetchAll(ectx echo.Context) error {
 		ectx.Bind(&pageQuery)
 		ectx.Bind(&queryParam)
 
-		professors, err := c.profSvc.FetchAllProfessors(ctx, &queryParam, &pageQuery)
+		professors, meta, err := c.profSvc.FetchAllProfessors(ctx, &queryParam, &pageQuery)
 		if err != nil {
 			errChan <- err
 			return
@@ -65,7 +65,7 @@ func (c *ProfessorController) FetchAll(ectx echo.Context) error {
 		responseChan <- *response.New(
 			"Successfully fetched all professors",
 			professors,
-			nil,
+			meta,
 		)
 	}()
 
