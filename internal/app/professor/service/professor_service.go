@@ -42,7 +42,7 @@ func (s *professorService) FetchAllProfessors(
 		return nil, dto.PaginationResponse{}, err 
 	}
 
-	items, err := repoClient.CountProfessor(ctx)
+	items, err := repoClient.GetProfessorItems(ctx, params)
 	if err != nil {
 		return nil, dto.PaginationResponse{}, err 
 	}

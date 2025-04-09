@@ -26,7 +26,7 @@ type ProfessorResponse struct {
 }
 
 type FetchProfessorParam struct {
-	Name    string
-	Faculty string
-	Major   string
+	Name    string `query:"name"`
+	Faculty string `query:"faculty"`
+	Major   string `query:"major"`
 }

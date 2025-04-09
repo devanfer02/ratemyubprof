@@ -23,7 +23,6 @@ func NewLogger(env *env.Env) *zap.Logger {
 
 	cfg.OutputPaths = []string{
 		"stdout",
-		"stderr",
 		"internal/logs/" + time.Now().Format("2006-01-02") + ".log",
 	}
 

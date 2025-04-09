@@ -32,7 +32,7 @@ func NewProfessorController(profSvc contracts.ProfessorService, validator *valid
 func (c *ProfessorController) Mount(r *echo.Group) {
 	profR := r.Group("/professors")
 
-	profR.GET("/", c.FetchAll)
+	profR.GET("", c.FetchAll)
 	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate())
 }
 
@@ -55,6 +55,13 @@ func (c *ProfessorController) FetchAll(ectx echo.Context) error {
 
 		ectx.Bind(&pageQuery)
 		ectx.Bind(&queryParam)
+
+		if pageQuery.Limit == 0 {
+			pageQuery.Limit = 10
+		}
+		if pageQuery.Page == 0 {
+			pageQuery.Page = 1
+		}
 
 		professors, meta, err := c.profSvc.FetchAllProfessors(ctx, &queryParam, &pageQuery)
 		if err != nil {

@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
-	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
+	"github.com/devanfer02/ratemyubprof/internal/entity"
+	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
@@ -59,17 +60,7 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)
 
-	if params.Faculty != "" {
-		qb = qb.Where(goqu.Ex{"faculty": params.Faculty})
-	}
-
-	if params.Major != "" {
-		qb = qb.Where(goqu.Ex{"major": params.Major})
-	}
-
-	if pageQuery != nil {
-		qb = qb.Offset(pageQuery.Page * pageQuery.Limit).Limit(pageQuery.Limit)
-	}
+	qb = util.AddParamsToFetchProf(qb, params)
 
 	query, args, err := qb.ToSQL()
 	if err != nil {
@@ -94,14 +85,16 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 	return professors, nil
 }
 
-func (p *professorRepositoryImplPostgre) CountProfessor(ctx context.Context) (int64, error) {
+func (p *professorRepositoryImplPostgre) GetProfessorItems(ctx context.Context, params *dto.FetchProfessorParam) (int64, error) {
 	var count int64
 
 	qb := goqu.
-		Select("COUNT(*)").
 		From(professorTableName).
+		Select(goqu.COUNT(goqu.Star())).
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)
+
+	qb = util.AddParamsToFetchProf(qb, params)
 
 	query, args, err := qb.ToSQL()
 	if err != nil {
