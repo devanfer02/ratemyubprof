@@ -42,47 +42,36 @@ func (c *ProfessorController) FetchAll(ectx echo.Context) error {
 	defer cancel()
 
 	var (
-		responseChan = make(chan response.Response)
-		errChan      = make(chan error)
+		pageQuery dto.PaginationQuery
+		queryParam dto.FetchProfessorParam
+		resp *response.Response
 	)
 
-	go func() {
-		defer close(responseChan)
+	ectx.Bind(&pageQuery)
+	ectx.Bind(&queryParam)
 
-		var (
-			pageQuery dto.PaginationQuery
-			queryParam dto.FetchProfessorParam
-		)
+	if pageQuery.Limit == 0 {
+		pageQuery.Limit = 10
+	}
+	if pageQuery.Page == 0 {
+		pageQuery.Page = 1
+	}
 
-		ectx.Bind(&pageQuery)
-		ectx.Bind(&queryParam)
+	professors, meta, err := c.profSvc.FetchAllProfessors(ctx, &queryParam, &pageQuery)
+	if err != nil {
+		return err 
+	}
 
-		if pageQuery.Limit == 0 {
-			pageQuery.Limit = 10
-		}
-		if pageQuery.Page == 0 {
-			pageQuery.Page = 1
-		}
-
-		professors, meta, err := c.profSvc.FetchAllProfessors(ctx, &queryParam, &pageQuery)
-		if err != nil {
-			errChan <- err
-			return
-		}
-
-		responseChan <- *response.New(
-			"Successfully fetched all professors",
-			professors,
-			meta,
-		)
-	}()
+	resp = response.New(
+		"Successfully fetched all professors",
+		professors,
+		meta,
+	)
 
 	select {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
-	case err := <-errChan:
-		return err
-	case resp := <-responseChan:
+	default:
 		return ectx.JSON(http.StatusOK, resp)
 	}
 }
@@ -92,34 +81,26 @@ func (c *ProfessorController) FetchByID(ectx echo.Context) error {
 	defer cancel()
 
 	var (
-		responseChan = make(chan response.Response)
-		errChan      = make(chan error)
+		resp *response.Response
 	)
 
-	go func() {
-		defer close(responseChan)
+	profId := ectx.Param("id")
 
-		profId := ectx.Param("id")
+	professor, err := c.profSvc.FetchProfessorByID(ctx, profId)
+	if err != nil {
+		return err 
+	}
 
-		professor, err := c.profSvc.FetchProfessorByID(ctx, profId)
-		if err != nil {
-			errChan <- err
-			return
-		}
-
-		responseChan <- *response.New(
-			"Successfully fetched professor",
-			professor,
-			nil,
-		)
-	}()
+	resp = response.New(
+		"Successfully fetched professor",
+		professor,
+		nil,
+	)
 
 	select {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
-	case err := <-errChan:
-		return err
-	case resp := <-responseChan:
+	default:
 		return ectx.JSON(http.StatusOK, resp)
 	}
 }
@@ -129,48 +110,35 @@ func (c *ProfessorController) CreateReview(ectx echo.Context) error {
 	defer cancel()
 
 	var (
-		responeChan = make(chan response.Response)
-		errChan = make(chan error)
+		req dto.ProfessorReviewRequest
+		resp *response.Response
 	)
 
-	go func () {
-		defer close(responeChan)
+	if err := ectx.Bind(&req); err != nil {
+		return err 
+	}
 
-		var (
-			req dto.ProfessorReviewRequest
-			profId = ectx.Param("id")
-		)
+	if err := c.validator.Struct(req); err != nil {
+		return err 
+	}
 
-		if err := ectx.Bind(&req); err != nil {
-			errChan <- err 
-		}
+	req.UserID = ectx.Get("userId").(string)
 
-		if err := c.validator.Struct(req); err != nil {
-			errChan <- err 
-		}
+	err := c.profSvc.CreateReview(ctx, &req)
+	if err != nil {
+		return err 
+	}
 
-		req.ProfessorID = profId
-		req.UserID = ectx.Get("userId").(string)
-
-		err := c.profSvc.CreateReview(ctx, &req)
-		if err != nil {
-			errChan <- err 
-			return
-		}
-
-		responeChan <- *response.New(
-			"Successfully create professor review",
-			nil,
-			nil,
-		)
-	}()
-
+	resp = response.New(
+		"Successfully create professor review",
+		nil,
+		nil,
+	)
+	
 	select {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
-	case err := <- errChan:
-		return err 
-	case resp := <- responeChan:
+	default:
 		return ectx.JSON(http.StatusCreated, resp)
 	}	
 }

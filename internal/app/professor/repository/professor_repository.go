@@ -60,6 +60,10 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)
 
+	if pageQuery.Page != 0 && pageQuery.Limit != 0{
+		qb = qb.Offset((pageQuery.Page - 1) * pageQuery.Limit).Limit(pageQuery.Limit)
+	}
+
 	qb = util.AddParamsToFetchProf(qb, params)
 
 	query, args, err := qb.ToSQL()

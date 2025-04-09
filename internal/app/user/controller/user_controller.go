@@ -42,41 +42,33 @@ func (c *UserController) Register(ectx echo.Context) error {
 	defer cancel()
 
 	var (
-		resChan = make(chan response.Response)
-		errChan = make(chan error)
+		req dto.UserRegisterRequest
+		resp *response.Response
 	)
 
-	go func () {
-		var (
-			req dto.UserRegisterRequest
-		)
+	if err := ectx.Bind(&req); err != nil {
+		return err 
+	}
 
-		if err := ectx.Bind(&req); err != nil {
-			errChan <- err
-		}
+	if err := c.validator.Struct(req); err != nil {
+		return err 
+	}
 
-		if err := c.validator.Struct(req); err != nil {
-			errChan <- err
-		}
+	err := c.userSvc.RegisterUser(ctx, &req)
+	if err != nil {
+		return err  
+	}
 
-		err := c.userSvc.RegisterUser(ctx, &req)
-		if err != nil {
-			errChan <- err 
-		}
-
-		resChan <- *response.New(
-			"Successfully register user",
-			nil,
-			nil,
-		)
-	}()
+	resp = response.New(
+		"Successfully register user",
+		nil,
+		nil,
+	)
 
 	select {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
-	case err := <- errChan:
-		return err 
-	case resp := <- resChan:
+	default:
 		return ectx.JSON(http.StatusCreated, resp)
 	}
 }
@@ -86,41 +78,33 @@ func (c *UserController) Login(ectx echo.Context) error {
 	defer cancel()
 
 	var (
-		resChan = make(chan response.Response)
-		errChan = make(chan error)
+		req dto.UserLoginRequest
+		resp *response.Response
 	)
 
-	go func () {
-		var (
-			req dto.UserLoginRequest
-		)
+	if err := ectx.Bind(&req); err != nil {
+		return err 
+	}
 
-		if err := ectx.Bind(&req); err != nil {
-			errChan <- err
-		}
+	if err := c.validator.Struct(req); err != nil {
+		return err 
+	}
 
-		if err := c.validator.Struct(req); err != nil {
-			errChan <- err
-		}
+	token, err := c.userSvc.LoginUser(ctx, &req)
+	if err != nil {
+		return err  
+	}
 
-		token, err := c.userSvc.LoginUser(ctx, &req)
-		if err != nil {
-			errChan <- err 
-		}
-
-		resChan <- *response.New(
-			"Successfully register user",
-			token,
-			nil,
-		)
-	}()
+	resp = response.New(
+		"Successfully register user",
+		token,
+		nil,
+	)
 
 	select {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
-	case err := <- errChan:
-		return err 
-	case resp := <- resChan:
+	default:
 		return ectx.JSON(http.StatusOK, resp)
 	}
 }
@@ -130,43 +114,35 @@ func (c *UserController) RefreshToken(ectx echo.Context) error {
 	defer cancel()
 
 	var (
-		errChan = make(chan error)
-		resChan = make(chan response.Response)
+		req dto.RefreshATRequest
+		resp *response.Response
 	)
 
-	go func() {
-		var (
-			req dto.RefreshATRequest
-		)
+	if err := ectx.Bind(&req); err != nil {
+		return err  			
+	}
 
-		if err := ectx.Bind(&req); err != nil {
-			errChan <- err 			
-		}
+	if err := c.validator.Struct(&req); err != nil {
+		return err  
+	}
 
-		if err := c.validator.Struct(&req); err != nil {
-			errChan <- err 
-		}
+	token, err := c.userSvc.RefreshAccessToken(ctx, req)
 
-		token, err := c.userSvc.RefreshAccessToken(ctx, req)
+	if err != nil {
+		return err  
+	}
 
-		if err != nil {
-			errChan <- err 
-		}
-
-		resChan <- *response.New(
-			"Successfully refresh access token",
-			token,
-			nil,
-		)
-	}()
+	resp = response.New(
+		"Successfully refresh access token",
+		token,
+		nil,
+	)
 
 	select {
 	case <- ctx.Done():
 		return contracts.ErrRequestTimeout
-	case err := <- errChan:
-		return err 
-	case resp := <- resChan:
-		return ectx.JSON(http.StatusOK, resp) 
+	default:
+		return ectx.JSON(http.StatusCreated, resp) 
 	}
 
 }
