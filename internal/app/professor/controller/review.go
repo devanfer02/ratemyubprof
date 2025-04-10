@@ -79,3 +79,35 @@ func (c *ProfessorController) CreateReview(ectx echo.Context) error {
 		return ectx.JSON(http.StatusCreated, resp)
 	}	
 }
+
+func (c *ProfessorController) DeleteReview(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		params dto.FetchReviewParams
+		resp *response.Response
+	)
+
+	ectx.Bind(&params)
+
+	params.UserId = ectx.Get("userId").(string)
+
+	err := c.profSvc.DeleteProfessorReview(ctx, &params)
+	if err != nil {
+		return err 
+	}
+
+	resp = response.New(
+		"Successfully create professor review",
+		nil,
+		nil,
+	)
+	
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusCreated, resp)
+	}		
+}

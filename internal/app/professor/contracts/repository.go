@@ -18,4 +18,5 @@ type ProfessorRepository interface {
 	InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error 	
 
 	InsertProfessorReview(ctx context.Context, review *entity.Review) error
+	DeleteProfessorReview(ctx context.Context, params *dto.FetchReviewParams) error
 }

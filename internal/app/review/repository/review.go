@@ -66,7 +66,6 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 	for rows.Next() {
 		var review entity.ReviewWithRelations
 		err := rows.Scan(
-			&review.ID,
 			&review.ProfessorID,
 			&review.UserID,
 			&review.Comment,
