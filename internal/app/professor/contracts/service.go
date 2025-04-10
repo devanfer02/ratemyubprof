@@ -11,4 +11,5 @@ type ProfessorService interface {
 	FetchProfessorByID(ctx context.Context, id string) (dto.FetchProfessorResponse, error)
 
 	CreateReview(ctx context.Context, param *dto.ProfessorReviewRequest) error
+	DeleteProfessorReview(ctx context.Context, params *dto.FetchReviewParams) error
 }
