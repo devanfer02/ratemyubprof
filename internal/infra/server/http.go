@@ -79,7 +79,7 @@ func (h *httpServer) mountHandlers() {
 	reviewSvc := review_svc.NewReviewService(reviewRepo)
 
 	profCtr := prof_ctr.NewProfessorController(profSvc, reviewSvc,h.Validator, middleware)
-	userCtr := user_ctr.NewUserController(userSvc, h.Validator, middleware)
+	userCtr := user_ctr.NewUserController(userSvc, reviewSvc, h.Validator, middleware)
 	authCtr := auth_ctr.NewAuthController(authSvc, h.Validator, middleware)
 
 	h.Handlers = append(
