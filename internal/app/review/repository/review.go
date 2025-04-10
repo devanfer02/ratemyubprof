@@ -51,7 +51,7 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 
 	query, args, err := qb.SetDialect(goqu.GetDialect("postgres")).Prepared(true).ToSQL()
 	if err != nil {
-		return nil, err
+		return nil, err 
 	}
 
 	log.Println("QUERY", query)

@@ -73,10 +73,10 @@ func (h *httpServer) mountHandlers() {
 	reviewRepo := review_repo.NewReviewRepository(h.Database)
 	profRepo := prof_repo.NewProfessorRepository(h.Database)
 	
-	profSvc := prof_svc.NewProfessorService(h.Logger, profRepo)
-	userSvc := user_svc.NewUserService(userRepo, jwtHandler, h.Logger)
-	authSvc := auth_svc.NewAuthService(userRepo, jwtHandler, h.Logger)
-	reviewSvc := review_svc.NewReviewService(h.Logger, reviewRepo)
+	profSvc := prof_svc.NewProfessorService(profRepo)
+	userSvc := user_svc.NewUserService(userRepo, jwtHandler)
+	authSvc := auth_svc.NewAuthService(userRepo, jwtHandler)
+	reviewSvc := review_svc.NewReviewService(reviewRepo)
 
 	profCtr := prof_ctr.NewProfessorController(profSvc, reviewSvc,h.Validator, middleware)
 	userCtr := user_ctr.NewUserController(userSvc, h.Validator, middleware)
