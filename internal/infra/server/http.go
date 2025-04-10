@@ -20,6 +20,9 @@ import (
 	prof_repo "github.com/devanfer02/ratemyubprof/internal/app/professor/repository"
 	prof_svc "github.com/devanfer02/ratemyubprof/internal/app/professor/service"
 
+	review_repo "github.com/devanfer02/ratemyubprof/internal/app/review/repository"
+	review_svc "github.com/devanfer02/ratemyubprof/internal/app/review/service"
+
 	"github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
@@ -67,13 +70,15 @@ func (h *httpServer) mountHandlers() {
 	middleware := middleware.NewMiddleware(jwtHandler)
 
 	userRepo := user_repo.NewUserRepository(h.Database)
+	reviewRepo := review_repo.NewReviewRepository(h.Database)
 	profRepo := prof_repo.NewProfessorRepository(h.Database)
 	
 	profSvc := prof_svc.NewProfessorService(h.Logger, profRepo)
 	userSvc := user_svc.NewUserService(userRepo, jwtHandler, h.Logger)
 	authSvc := auth_svc.NewAuthService(userRepo, jwtHandler, h.Logger)
+	reviewSvc := review_svc.NewReviewService(h.Logger, reviewRepo)
 
-	profCtr := prof_ctr.NewProfessorController(profSvc, h.Validator, middleware)
+	profCtr := prof_ctr.NewProfessorController(profSvc, reviewSvc,h.Validator, middleware)
 	userCtr := user_ctr.NewUserController(userSvc, h.Validator, middleware)
 	authCtr := auth_ctr.NewAuthController(authSvc, h.Validator, middleware)
 
