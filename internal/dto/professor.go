@@ -15,7 +15,7 @@ type ProfessorReviewRequest struct {
 	FriendlyRate float32 `json:"friendlyRate" validate:"required,min=1,max=5"`
 }
 
-type ProfessorResponse struct {
+type FetchProfessorResponse struct {
 	ID             string `json:"id"`
 	Name           string `json:"name"`
 	Faculty        string `json:"faculty"`

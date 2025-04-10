@@ -14,7 +14,7 @@ func (s *professorService) FetchAllProfessors(
 	params *dto.FetchProfessorParam, 
 	pageQuery *dto.PaginationQuery,
 ) (
-	[]dto.ProfessorResponse, 
+	[]dto.FetchProfessorResponse, 
 	dto.PaginationResponse,
 	error,
 ) {
@@ -40,15 +40,15 @@ func (s *professorService) FetchAllProfessors(
 	return responses, pageMeta, nil
 }
 
-func (s *professorService) FetchProfessorByID(ctx context.Context, id string) (dto.ProfessorResponse, error) {
+func (s *professorService) FetchProfessorByID(ctx context.Context, id string) (dto.FetchProfessorResponse, error) {
 	repoClient, err := s.profRepo.NewClient(false)
 	if err != nil {
-		return dto.ProfessorResponse{}, err 
+		return dto.FetchProfessorResponse{}, err 
 	}
 
 	professor, err := repoClient.FetchProfessorByID(ctx, id)
 	if err != nil {
-		return dto.ProfessorResponse{}, err 
+		return dto.FetchProfessorResponse{}, err 
 	}
 
 	response := formatter.FormatProfessorEntityToDto(professor)
