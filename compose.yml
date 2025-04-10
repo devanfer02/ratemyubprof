@@ -1,0 +1,48 @@
+services:
+  proxy:
+    container_name: ratemyubprof-poxy
+    image: nginx:stable-alpine3.19
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - server
+    networks:
+      - ratemyubprof
+  server:
+    build:
+      dockerfile: ./deploy/docker/Dockerfile
+      context: .
+    container_name: ratemyubprof-be
+    depends_on:
+      - db 
+    networks:
+      - ratemyubprof 
+  db:
+    image: postgres:16.1
+    container_name: ratemyubprof-db
+    environment:
+      - POSTGRES_USER=${DB_USER} 
+      - POSTGRES_PASSWORD=${DB_PASS} 
+      - POSTGRES_DB=${DB_NAME} 
+      - TZ=Asia/Jakarta
+      - PORT=${DB_PORT}
+    volumes:
+      - ratemyubprof-data:/var/lib/postgresql/data 
+    networks:
+      - ratemyubprof
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
+      start_interval: 5s
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+networks:
+  ratemyubprof:
+    driver: bridge
+  
+volumes:
+  ratemyubprof-data:
+    driver: local
