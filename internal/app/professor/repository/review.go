@@ -2,8 +2,9 @@ package repository
 
 import (
 	"context"
-	
+
 	"github.com/devanfer02/ratemyubprof/internal/entity"
+	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/doug-martin/goqu/v9"
 )
 
@@ -16,41 +17,15 @@ func (p *professorRepositoryImplPostgre) InsertProfessorReview(ctx context.Conte
 
 	query, args, err := qb.ToSQL()
 	if err != nil {
-		return err
+		return apperr.NewFromError(err, "Failed to insert review professor").SetLocation()
 	}
 
 	query = p.conn.Rebind(query)
 
 	_, err = p.conn.ExecContext(ctx, query, args...)
 	if err != nil {
-		return err
+		return apperr.NewFromError(err, "Failed to insert review professor").SetLocation()
 	}
 
 	return nil
-}
-
-
-func (p *professorRepositoryImplPostgre) GetReviewsItemsByProfID(ctx context.Context, profId string) (uint64, error) {
-	var count uint64
-	
-	qb := goqu.
-		From(reviewTableName).
-		Select(goqu.COUNT(goqu.Star())).
-		Where(goqu.I("reviews.id").Eq(profId)).
-		SetDialect(goqu.GetDialect("postgres")).
-		Prepared(true)
-
-	query, args, err := qb.ToSQL()
-	if err != nil {
-		return 0, err
-	}
-
-	query = p.conn.Rebind(query)
-
-	err = p.conn.QueryRowxContext(ctx, query, args...).Scan(&count)
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
 }

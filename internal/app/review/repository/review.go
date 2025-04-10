@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"log"
 
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
+	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/doug-martin/goqu/v9"
 )
 
@@ -51,17 +51,14 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 
 	query, args, err := qb.SetDialect(goqu.GetDialect("postgres")).Prepared(true).ToSQL()
 	if err != nil {
-		return nil, err 
+		return nil, apperr.NewFromError(err, "Failed to fetch reviews by params").SetLocation()
 	}
-
-	log.Println("QUERY", query)
-	log.Println("PARAMS", params)
 
 	query = p.conn.Rebind(query)
 
 	rows, err := p.conn.QueryxContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, apperr.NewFromError(err, "Failed to fetch reviews by params").SetLocation()
 	}
 	defer rows.Close()
 
@@ -85,7 +82,7 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 			&review.Professor.ProfileImgLink,
 		)
 		if err != nil {
-			return nil, err
+			return nil, apperr.NewFromError(err, "Failed to fetch reviews by params").SetLocation()
 		}
 		reviews = append(reviews, review)
 	}
@@ -111,14 +108,15 @@ func (p *reviewRepositoryImplPostgre) GetReviewsItemsByParams(ctx context.Contex
 		
 	query, args, err := qb.SetDialect(goqu.GetDialect("postgres")).Prepared(true).ToSQL()
 	if err != nil {
-		return 0, err
+		return 0, apperr.NewFromError(err, "Failed to get reviews counter").SetLocation()
 	}
 
 	query = p.conn.Rebind(query)
 
 	err = p.conn.QueryRowxContext(ctx, query, args...).Scan(&count)
 	if err != nil {
-		return 0, err
+		return 0, apperr.NewFromError(err, "Failed to get reviews counter").SetLocation()
+
 	}
 
 	return count, nil

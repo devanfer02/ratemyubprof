@@ -23,7 +23,7 @@ func errHandler() echo.HTTPErrorHandler {
 		if ce, ok := err.(*apperr.AppError); ok {
 			c.JSON(ce.Code, echo.Map{
 				"message": ce.Message,
-				"error":   ce.Error(),
+				"error":   ce.Err.Error(),
 			})
 			return
 		}
