@@ -14,9 +14,15 @@ func (c *ProfessorController) FetchReviews(ectx echo.Context) error {
 	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
 	defer cancel()
 
-	idParam := ectx.Param("id")
+	var (
+		pageQuery dto.PaginationQuery
+	)
 
-	res, err := c.profSvc.FetchProfessorReviews(ctx, idParam)
+	idParam := ectx.Param("id")
+	ectx.Bind(&pageQuery)
+	pageQuery.SetDefaultValue()
+
+	res, meta, err := c.profSvc.FetchProfessorReviews(ctx, idParam, &pageQuery)
 	if err != nil {
 		return err 
 	}
@@ -24,7 +30,7 @@ func (c *ProfessorController) FetchReviews(ectx echo.Context) error {
 	resp := response.New(
 		"Successfully fetch professor reviews",
 		res,
-		nil,
+		meta,
 	)
 
 	select {
