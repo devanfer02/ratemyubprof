@@ -27,6 +27,9 @@ func NewFromError(err error, message string) *AppError {
 }
 
 func (e *AppError) Error() string {
+	if e.Err == nil {
+		return e.Message
+	}
 	return e.Err.Error()
 }
 
