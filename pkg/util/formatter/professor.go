@@ -21,16 +21,16 @@ func FormatProfessorStaticToEntity(professors []dto.ProfessorStatic) []entity.Pr
 
 }
 
-func FormatProfessorEntitiesToDto(professors []entity.Professor) []dto.ProfessorResponse {
-	var professorsResponse []dto.ProfessorResponse
+func FormatProfessorEntitiesToDto(professors []entity.Professor) []dto.FetchProfessorResponse {
+	var professorsResponse []dto.FetchProfessorResponse
 	for _, professor := range professors {
 		professorsResponse = append(professorsResponse, FormatProfessorEntityToDto(professor))
 	}
 	return professorsResponse
 }
 
-func FormatProfessorEntityToDto(professor entity.Professor) dto.ProfessorResponse {
-	return dto.ProfessorResponse{
+func FormatProfessorEntityToDto(professor entity.Professor) dto.FetchProfessorResponse {
+	return dto.FetchProfessorResponse{
 		ID:             professor.ID,
 		Name:           professor.Name,
 		Faculty:        professor.Faculty,

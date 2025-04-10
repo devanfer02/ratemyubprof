@@ -30,5 +30,7 @@ func (c *ProfessorController) Mount(r *echo.Group) {
 
 	profR.GET("", c.FetchAll)
 	profR.GET("/:id", c.FetchByID)
+
+	profR.GET("/:id/reviews", c.FetchReviews																					)
 	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate())
 }

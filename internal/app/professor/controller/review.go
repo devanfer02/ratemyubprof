@@ -10,6 +10,31 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (c *ProfessorController) FetchReviews(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	idParam := ectx.Param("id")
+
+	res, err := c.profSvc.FetchProfessorReviews(ctx, idParam)
+	if err != nil {
+		return err 
+	}
+
+	resp := response.New(
+		"Successfully fetch professor reviews",
+		res,
+		nil,
+	)
+
+	select {
+	case <- ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusOK, resp)
+	}
+}
+
 func (c *ProfessorController) CreateReview(ectx echo.Context) error {
 	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
 	defer cancel()

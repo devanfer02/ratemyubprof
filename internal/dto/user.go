@@ -12,6 +12,12 @@ type UserLoginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type FetchUserResponse struct {
+	ID        string    `db:"id"`
+	Username  string    `db:"username"`
+	CreatedAt string `db:"created_at"`	
+}
+
 type UserTokenResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`

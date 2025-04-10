@@ -16,5 +16,7 @@ type ProfessorRepository interface {
 	FetchProfessorByID(ctx context.Context, id string) (entity.Professor, error)
 	GetProfessorItems(ctx context.Context, params *dto.FetchProfessorParam) (uint64, error)
 	InsertProfessorsBulk(ctx context.Context, professors []entity.Professor) error 	
+
+	FetchProfessorReviews(ctx context.Context, id string) ([]entity.ReviewWithRelations, error)
 	InsertProfessorReview(ctx context.Context, review *entity.Review) error
 }
