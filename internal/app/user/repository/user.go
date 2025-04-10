@@ -5,6 +5,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
+	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/doug-martin/goqu/v9"
 )
 
@@ -20,7 +21,7 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 
 	query, args, err := qb.SetDialect(goqu.GetDialect("postgres")).Prepared(true).ToSQL()
 	if err != nil {
-		return err
+		return apperr.NewFromError(err, "Failed to insert user").SetLocation()
 	}
 
 	query = u.conn.Rebind(query)
@@ -32,7 +33,7 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 			return contracts.ErrUsernameTaken
 		}
 
-		return err
+		return apperr.NewFromError(err, "Failed to insert user").SetLocation()
 	}
 
 	return nil
@@ -45,22 +46,15 @@ func (u *userRepositoryImplPostgre) FetchUserByUsername(ctx context.Context, use
 
 	query, args, err := qb.SetDialect(goqu.GetDialect("postgres")).ToSQL()
 	if err != nil {
-		return nil, err
+		return nil, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
 	}
 
 	query = u.conn.Rebind(query)
 
 	var user entity.User
-	rows, err := u.conn.QueryxContext(ctx, query, args...)
+	err = u.conn.QueryRowxContext(ctx, query, args...).StructScan(&user)
 	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		err = rows.StructScan(&user)
-		if err != nil {
-			return nil, err
-		}
+		return nil, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
 	}
 
 	return &user, nil

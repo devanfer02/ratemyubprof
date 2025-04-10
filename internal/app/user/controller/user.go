@@ -45,3 +45,35 @@ func (c *UserController) Register(ectx echo.Context) error {
 		return ectx.JSON(http.StatusCreated, resp)
 	}
 }
+
+func (c *UserController) FetchReviews(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		pageQuery dto.PaginationQuery
+		param dto.FetchReviewParams
+	)
+
+	ectx.Bind(&param)
+	ectx.Bind(&pageQuery)
+	pageQuery.SetDefaultValue()
+
+	res, meta, err := c.reviewSvc.FetchReviewsByParams(ctx, &param, &pageQuery)
+	if err != nil {
+		return err 
+	}
+
+	resp := response.New(
+		"Successfully fetch professor reviews",
+		res,
+		meta,
+	)
+
+	select {
+	case <- ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusOK, resp)
+	}
+}

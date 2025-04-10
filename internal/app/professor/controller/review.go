@@ -16,13 +16,14 @@ func (c *ProfessorController) FetchReviews(ectx echo.Context) error {
 
 	var (
 		pageQuery dto.PaginationQuery
+		param dto.FetchReviewParams
 	)
 
-	idParam := ectx.Param("id")
+	ectx.Bind(&param)
 	ectx.Bind(&pageQuery)
 	pageQuery.SetDefaultValue()
 
-	res, meta, err := c.profSvc.FetchProfessorReviews(ctx, idParam, &pageQuery)
+	res, meta, err := c.reviewSvc.FetchReviewsByParams(ctx, &param, &pageQuery)
 	if err != nil {
 		return err 
 	}

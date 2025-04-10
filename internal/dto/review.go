@@ -11,3 +11,8 @@ type FetchReviewResponse struct {
 	User         FetchUserResponse      `json:"user"`
 	Professor    FetchProfessorResponse `json:"professor"`
 }
+
+type FetchReviewParams struct {
+	ProfId string `param:"profId"`
+	UserId string `param:"userId"`
+}

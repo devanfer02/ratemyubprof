@@ -6,9 +6,9 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
+	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"github.com/doug-martin/goqu/v9"
-	
 )
 
 func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]entity.Professor, error) {
@@ -28,20 +28,20 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 
 	query, args, err := qb.ToSQL()
 	if err != nil {
-		return nil, err
+		return nil, apperr.NewFromError(err, "Failed to fetch all professors").SetLocation()
 	}
 
 	query = p.conn.Rebind(query)
 	
 	rows, err := p.conn.QueryxContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, apperr.NewFromError(err, "Failed to fetch all professors").SetLocation()
 	}
 
 	for rows.Next() {
 		var professor entity.Professor
 		if err := rows.StructScan(&professor); err != nil {
-			return nil, err
+			return nil, apperr.NewFromError(err, "Failed to fetch all professors").SetLocation()
 		}
 		professors = append(professors, professor)
 	}
@@ -60,14 +60,14 @@ func (p *professorRepositoryImplPostgre) FetchProfessorByID(ctx context.Context,
 
 	query, args, err := qb.ToSQL()
 	if err != nil {
-		return professor, err
+		return professor, apperr.NewFromError(err, "Failed to fetch professor by id").SetLocation()
 	}
 
 	query = p.conn.Rebind(query)
 	
 	err = p.conn.QueryRowxContext(ctx, query, args...).StructScan(&professor)
 	if err != nil {
-		return professor, err
+		return professor, apperr.NewFromError(err, "Failed to fetch professor by id").SetLocation()
 	}
 
 	return professor, nil
@@ -86,14 +86,14 @@ func (p *professorRepositoryImplPostgre) GetProfessorItems(ctx context.Context, 
 
 	query, args, err := qb.ToSQL()
 	if err != nil {
-		return 0, err
+		return 0, apperr.NewFromError(err, "Failed to get professor counter").SetLocation()
 	}
 
 	query = p.conn.Rebind(query)
 
 	err = p.conn.QueryRowxContext(ctx, query, args...).Scan(&count)
 	if err != nil {
-		return 0, err
+		return 0, apperr.NewFromError(err, "Failed to get professor counter").SetLocation()
 	}
 
 	return count, nil
@@ -121,15 +121,14 @@ func (p *professorRepositoryImplPostgre) InsertProfessorsBulk(ctx context.Contex
 
 	query, args, err := qb.ToSQL()
 	if err != nil {
-		return err
+		return apperr.NewFromError(err, "Failed to insert professor bulk").SetLocation()
 	}
 
 	query = p.conn.Rebind(query)
 
 	_, err = p.conn.ExecContext(ctx, query, args...)
 	if err != nil {
-
-		return err
+		return apperr.NewFromError(err, "Failed to insert professor bulk").SetLocation()
 	}
 
 	return nil
