@@ -32,5 +32,6 @@ func (c *UserController) Mount(r *echo.Group) {
 	userR := r.Group("/users")
 
 	userR.GET("/:userId/reviews", c.FetchReviews)
+	userR.GET("/reviews", c.FetchReviews, c.mdlwr.Authenticate())
 	userR.POST("/register", c.Register)	
 }

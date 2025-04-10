@@ -13,9 +13,9 @@ type UserLoginRequest struct {
 }
 
 type FetchUserResponse struct {
-	ID        string    `db:"id"`
-	Username  string    `db:"username"`
-	CreatedAt string `db:"created_at"`	
+	ID        string `json:"id"`
+	Username  string `json:"username"`
+	CreatedAt string `json:"created_at"`
 }
 
 type UserTokenResponse struct {

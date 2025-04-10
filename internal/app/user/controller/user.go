@@ -59,6 +59,10 @@ func (c *UserController) FetchReviews(ectx echo.Context) error {
 	ectx.Bind(&pageQuery)
 	pageQuery.SetDefaultValue()
 
+	if val := ectx.Get("userId").(string); val != "" {
+		param.UserId = val
+	}
+
 	res, meta, err := c.reviewSvc.FetchReviewsByParams(ctx, &param, &pageQuery)
 	if err != nil {
 		return err 

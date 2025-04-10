@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	
+
+	"github.com/devanfer02/ratemyubprof/internal/app/professor/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
@@ -25,6 +26,10 @@ func (p *professorRepositoryImplPostgre) InsertProfessorReview(ctx context.Conte
 
 	_, err = p.conn.ExecContext(ctx, query, args...)
 	if err != nil {
+		if contracts.IsErrorCode(err, contracts.PgsqlUniqueViolationErr) {
+			return contracts.ErrItemAlreadyExists
+		}
+		
 		return apperr.NewFromError(err, "Failed to insert review professor").SetLocation()
 	}
 
@@ -48,9 +53,22 @@ func (p *professorRepositoryImplPostgre) DeleteProfessorReview(ctx context.Conte
 
 	query = p.conn.Rebind(query)
 
-	_, err = p.conn.ExecContext(ctx, query, args...)
+	res, err := p.conn.ExecContext(ctx, query, args...)
 	if err != nil {
 		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()
+	}
+
+	rows, _ := res.RowsAffected()
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()
+	}
+
+	if rows == 0 {
+		return contracts.ErrItemNotFound
+	}
+
+	if rows > 1 {
+		return contracts.ErrMoreThanOneAffected
 	}
 
 	return nil 

@@ -17,6 +17,7 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 	qb := goqu.
 		Select("id", "name", "faculty", "major", "profile_img_link").
 		From(professorTableName).
+		Order(goqu.I("name").Asc()).
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)
 
