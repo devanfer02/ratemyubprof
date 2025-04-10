@@ -99,7 +99,7 @@ func (c *ProfessorController) DeleteReview(ectx echo.Context) error {
 	}
 
 	resp = response.New(
-		"Successfully create professor review",
+		"Successfully delete professor review",
 		nil,
 		nil,
 	)
@@ -108,6 +108,6 @@ func (c *ProfessorController) DeleteReview(ectx echo.Context) error {
 	case <-ctx.Done():
 		return contracts.ErrRequestTimeout
 	default:
-		return ectx.JSON(http.StatusCreated, resp)
+		return ectx.JSON(http.StatusOK, resp)
 	}		
 }

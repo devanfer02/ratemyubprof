@@ -36,5 +36,5 @@ func (c *ProfessorController) Mount(r *echo.Group) {
 
 	profR.GET("/:profId/reviews", c.FetchReviews )
 	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate())
-	profR.DELETE("/:id/reviews", c.DeleteReview, c.mdlwr.Authenticate())
+	profR.DELETE("/:profId/reviews", c.DeleteReview, c.mdlwr.Authenticate())
 }
