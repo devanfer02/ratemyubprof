@@ -7,6 +7,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func NewRouter() *echo.Echo {
@@ -14,6 +15,7 @@ func NewRouter() *echo.Echo {
 
 	router.JSONSerializer = newSonicJSONSerializer()
 	router.HTTPErrorHandler = errHandler()
+	router.Use(middleware.Recover())
 	
 	return router 
 }
