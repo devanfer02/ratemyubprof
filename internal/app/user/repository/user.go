@@ -7,6 +7,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/doug-martin/goqu/v9"
+	"github.com/lib/pq"
 )
 
 
@@ -14,6 +15,7 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 	qb := goqu.Insert(userTableName).Rows(
 		goqu.Record{
 			"id": user.ID,
+			"nim": user.NIM,
 			"username": user.Username,
 			"password": user.Password,
 		},
@@ -30,7 +32,14 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 	if err != nil {
 		
 		if contracts.IsErrorCode(err, contracts.PgsqlUniqueViolationErr) {
-			return contracts.ErrUsernameTaken
+			pgErr, ok := err.(*pq.Error)
+			if ok {
+				if pgErr.Constraint == "users_nim_unique" {
+					return contracts.ErrAlreadyRegistered
+				} else if pgErr.Constraint == "users_username_unique" {
+					return contracts.ErrUsernameTaken
+				} 
+			} 
 		}
 
 		return apperr.NewFromError(err, "Failed to insert user").SetLocation()

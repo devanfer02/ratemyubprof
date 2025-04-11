@@ -8,7 +8,8 @@ import (
 func FormatUserEntityToDto(user *entity.User) dto.FetchUserResponse {
 	return dto.FetchUserResponse{
 		ID:        user.ID,
-		Username: user.Username,
-		CreatedAt:  user.CreatedAt.String(),
+		NIM:       user.NIM,
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt.String(),
 	}
 }

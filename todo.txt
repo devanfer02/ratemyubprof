@@ -1,0 +1,1 @@
+- Add nim identifier to db to prevent duplicate account

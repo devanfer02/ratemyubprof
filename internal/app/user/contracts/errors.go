@@ -10,6 +10,7 @@ import (
 var (
 	ErrRequestTimeout    = apperr.New(http.StatusRequestTimeout, "http request timeout")
 	ErrUsernameTaken     = apperr.New(http.StatusConflict, "username is already taken")
+	ErrAlreadyRegistered = apperr.New(http.StatusConflict, "student already registered")
 
 	PgsqlUniqueViolationErr = pq.ErrorCode("23505")
 )

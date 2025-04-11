@@ -4,7 +4,7 @@ metadata:
   name: ratemyubprof-configmap
   namespace: default  
 data:
-  config.json: |
+  env.json: |
     {
       "database": {
         "host": "localhost",
@@ -15,18 +15,18 @@ data:
         "sslmode": "disable"
       },
       "app": {
-        "port": 80,
+        "port": 8000,
         "version": "1.0.0",
         "name": "ratemyubprof",
-        "env": "development"
+        "env": "production"
       },
       "logger": {
-        "type": "development"
+        "type": "production"
       },
       "jwt": {
-        "atSecretKey": "",
-        "atExpiredTime": 0,
-        "rtSecretKey": "",
-        "rtExpiredTime": 0
+        "atSecretKey": "aTsecretKey",
+        "atExpiredTime": 1,
+        "rtSecretKey": "rTsecretKey",
+        "rtExpiredTime": 24
       }
     }
