@@ -40,6 +40,8 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 					return contracts.ErrUsernameTaken
 				} 
 			} 
+
+			return contracts.ErrUsernameTaken
 		}
 
 		return apperr.NewFromError(err, "Failed to insert user").SetLocation()
