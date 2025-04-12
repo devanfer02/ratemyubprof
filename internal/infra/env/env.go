@@ -15,10 +15,12 @@ type Env struct {
 	} `json:"database"`
 
 	App struct {
-		Port    string `json:"port"`
-		Version string `json:"version"`
-		Name    string `json:"name"`
-		Env     string `json:"env"`
+		Port         string `json:"port"`
+		Version      string `json:"version"`
+		Name         string `json:"name"`
+		Env          string `json:"env"`
+		ApiKey       string `json:"apiKey"`
+		ApiKeyHeader string `json:"apiKeyHeader"`
 	} `json:"app"`
 
 	Logger struct {

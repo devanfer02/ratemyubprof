@@ -14,6 +14,10 @@ func ErrLogger(logger *zap.Logger) echo.MiddlewareFunc {
 
 			if err != nil {
 
+				if err == echo.ErrUnauthorized {
+					return err // No need to log unauthorized errors
+				}
+
 				if appErr, ok := err.(*apperr.AppError); ok {
 					logger.Error("Error",
 						zap.String("Path", c.Path()),

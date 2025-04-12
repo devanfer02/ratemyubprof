@@ -93,6 +93,7 @@ func (h *httpServer) mountHandlers() {
 func (h *httpServer) Start() {
 	h.Router.Use(middleware.ErrLogger(h.Logger))
 	h.Router.Use(middleware.RequestLogger(h.Logger))
+	h.Router.Use(middleware.ApiKey(h.Env))
 	h.mountHandlers()
 
 	for _, handler := range h.Handlers {
