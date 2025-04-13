@@ -44,3 +44,4 @@ tmp
 env.json
 .db.env
 *.log
+todo.txt
