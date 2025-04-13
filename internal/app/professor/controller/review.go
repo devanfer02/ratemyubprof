@@ -80,6 +80,44 @@ func (c *ProfessorController) CreateReview(ectx echo.Context) error {
 	}	
 }
 
+func (c *ProfessorController) UpdateReview(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		req dto.ProfessorReviewRequest
+		resp *response.Response
+	)
+
+	if err := ectx.Bind(&req); err != nil {
+		return err 
+	}
+
+	if err := c.validator.Struct(req); err != nil {
+		return err 
+	}
+
+	req.UserID = ectx.Get("userId").(string)
+
+	err := c.profSvc.UpdateProfessorReview(ctx, &req)
+	if err != nil {
+		return err 
+	}
+
+	resp = response.New(
+		"Successfully update professor review",
+		nil,
+		nil,
+	)
+	
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusCreated, resp)
+	}	
+}
+
 func (c *ProfessorController) DeleteReview(ectx echo.Context) error {
 	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
 	defer cancel()
