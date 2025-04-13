@@ -24,6 +24,21 @@ func (s *professorService) CreateReview(ctx context.Context, param *dto.Professo
 	return nil
 }
 
+func (s *professorService) UpdateProfessorReview(ctx context.Context, req *dto.ProfessorReviewRequest) error {
+	repoClient, err := s.profRepo.NewClient(false)
+	if err != nil {
+		return err 
+	}
+
+	entity := formatter.FormatReviewToEntity(req)
+	err = repoClient.UpdateProfessorReview(ctx, &entity)
+	if err != nil {
+		return err 
+	}
+
+	return nil 
+}
+
 func (s *professorService) DeleteProfessorReview(ctx context.Context, params *dto.FetchReviewParams) error {
 	repoClient, err := s.profRepo.NewClient(false)
 	if err != nil {

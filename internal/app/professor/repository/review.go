@@ -36,6 +36,46 @@ func (p *professorRepositoryImplPostgre) InsertProfessorReview(ctx context.Conte
 	return nil
 }
 
+func (p *professorRepositoryImplPostgre) UpdateProfessorReview(ctx context.Context, review *entity.Review) error {
+	qb := goqu. 
+		Update(reviewTableName). 
+		Set(review). 
+		Where(
+			goqu.And(
+				goqu.I("reviews.prof_id").Eq(review.ProfessorID), 
+				goqu.I("reviews.user_id").Eq(review.UserID),
+			),
+		)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to update professor review").SetLocation()
+	}
+
+	query = p.conn.Rebind(query)
+
+	res, err := p.conn.ExecContext(ctx, query, args...)
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()	
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()	
+	}
+
+	if rows == 0 {
+		return contracts.ErrItemNotFound
+	}
+
+	if rows > 1 {
+		return contracts.ErrMoreThanOneAffected
+	}
+
+	return nil 
+		
+}
+
 func (p *professorRepositoryImplPostgre) DeleteProfessorReview(ctx context.Context, params *dto.FetchReviewParams) error {
 	qb := goqu. 
 		Delete(reviewTableName). 
@@ -58,7 +98,7 @@ func (p *professorRepositoryImplPostgre) DeleteProfessorReview(ctx context.Conte
 		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()
 	}
 
-	rows, _ := res.RowsAffected()
+	rows, err := res.RowsAffected()
 	if err != nil {
 		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()
 	}
