@@ -16,7 +16,7 @@ help:
 
 .PHONY: run
 run:
-	go run ./cmd/main/main.go
+	go run ./cmd/main/main.go $(args)
 
 .PHONY: seed 
 seed:
