@@ -12,6 +12,7 @@ import (
 func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, params *dto.FetchReviewParams, pageQuery *dto.PaginationQuery) ([]entity.ReviewWithRelations, error) {
 	qb := goqu.
 		Select(
+			goqu.I("r.id").As("id"),
 			goqu.I("r.prof_id").As("prof_id"),
 			goqu.I("r.user_id").As("user_id"),
 			goqu.I("r.comment").As("comment"),
@@ -65,6 +66,7 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 	for rows.Next() {
 		var review entity.ReviewWithRelations
 		err := rows.Scan(
+			&review.ID,
 			&review.ProfessorID,
 			&review.UserID,
 			&review.Comment,

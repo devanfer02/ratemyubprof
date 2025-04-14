@@ -16,7 +16,7 @@ type FetchUserResponse struct {
 	ID        string `json:"id"`
 	NIM       string `json:"nim"`
 	Username  string `json:"username"`
-	CreatedAt string `json:"created_at"`
+	CreatedAt string `json:"createdAt"`
 }
 
 type UserTokenResponse struct {

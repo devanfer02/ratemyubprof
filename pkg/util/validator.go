@@ -16,6 +16,8 @@ func GetErrorValidationMessage(fe validator.FieldError) string {
 		return fmt.Sprintf("%s must be at most %s", fe.Field(), fe.Param())
 	case "required":
 		return fmt.Sprintf("%s is required", fe.Field())
+	case "reactionType":
+		return fmt.Sprintf("%s must be one of the following: like, dislike", fe.Field())
 	default:
 		return fmt.Sprintf("%s is not valid", fe.Field())
 	}

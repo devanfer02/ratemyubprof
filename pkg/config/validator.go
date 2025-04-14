@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 )
@@ -20,7 +21,7 @@ func NewValidator() *validator.Validate {
 	})
 
 	validations := map[string]func(validator.FieldLevel) bool{
-		
+		"reactionType": ValidateReactionType,	
 	}
 
 	for tag, method := range validations {
@@ -30,4 +31,15 @@ func NewValidator() *validator.Validate {
 	}
 
 	return v
+}
+
+func ValidateReactionType(fe validator.FieldLevel) bool {
+	reactionType := fe.Field().String()
+	reaction := entity.ToReactionType(reactionType)
+
+	if reaction == 0 {
+		return false
+	}
+
+	return true
 }
