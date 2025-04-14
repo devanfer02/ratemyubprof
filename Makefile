@@ -56,7 +56,11 @@ migrate-up:
 
 .PHONY: migrate-down
 migrate-down:
+ifndef version
 	migrate -path ./internal/infra/database/postgres/migrations -database ${DB_URL} down 
+else 
+	migrate -path ./internal/infra/database/postgres/migrations -database ${DB_URL} down $(version)
+endif 
 
 .PHONY: migrate-force
 migrate-force:

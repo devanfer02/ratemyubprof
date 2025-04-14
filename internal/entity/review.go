@@ -3,6 +3,7 @@ package entity
 import "time"
 
 type Review struct {
+	ID           string    `db:"id"`
 	ProfessorID  string    `db:"prof_id"`
 	UserID       string    `db:"user_id"`
 	Comment      string    `db:"comment"`

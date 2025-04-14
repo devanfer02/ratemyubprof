@@ -1,6 +1,7 @@
 package dto
 
 type FetchReviewResponse struct {
+	ID           string                 `json:"id"`
 	ProfessorID  string                 `json:"prof_id"`
 	UserID       string                 `json:"user_id"`
 	Comment      string                 `json:"comment"`

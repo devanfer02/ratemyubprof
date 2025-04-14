@@ -1,4 +1,5 @@
 CREATE TABLE reviews (
+    id VARCHAR(250) NOT NULL PRIMARY KEY,
     user_id VARCHAR(250) NOT NULL,
     prof_id VARCHAR(250) NOT NULL,
     comment TEXT,

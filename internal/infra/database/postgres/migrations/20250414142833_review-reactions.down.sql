@@ -1,0 +1,1 @@
+DROP TABLE review_reactions IF EXISTS CASCADE;

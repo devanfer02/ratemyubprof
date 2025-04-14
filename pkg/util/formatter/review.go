@@ -21,13 +21,12 @@ func FormatReviewEntitiesToDto(reviews []entity.ReviewWithRelations) []dto.Fetch
 		res[idx] = FormatReviewEntityToDto(&review)
 	}
 
-	return res 
+	return res
 }
-
 
 func FormatReviewEntityToDto(review *entity.ReviewWithRelations) dto.FetchReviewResponse {
 	return dto.FetchReviewResponse{
-
+		ID:           review.ID,
 		UserID:       review.UserID,
 		ProfessorID:  review.ProfessorID,
 		Comment:      review.Comment,
