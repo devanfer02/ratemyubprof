@@ -48,7 +48,7 @@ type httpServer struct {
 	Handlers []httpHandler
 }
 
-func NewHttpServer() *httpServer {
+func NewHttpServer() Server {
 	env := env.NewEnv()
 	db := database.NewDatabase(env)
 	logger := logger.NewLogger(env)
@@ -65,7 +65,7 @@ func NewHttpServer() *httpServer {
 	}
 }
 
-func (h *httpServer) mountHandlers() {
+func (h *httpServer) MountHandlers() {
 	jwtHandler := config.NewJwtHandler(h.Env)
 	middleware := middleware.NewMiddleware(jwtHandler)
 
@@ -94,7 +94,7 @@ func (h *httpServer) Start() {
 	h.Router.Use(middleware.ErrLogger(h.Logger))
 	h.Router.Use(middleware.RequestLogger(h.Logger))
 	h.Router.Use(middleware.ApiKey(h.Env))
-	h.mountHandlers()
+	h.MountHandlers()
 
 	for _, handler := range h.Handlers {
 		handler.Mount(h.Router.Group("/api/v1"))
@@ -108,6 +108,20 @@ func (h *httpServer) Start() {
 	if err := h.Router.Start(":" + h.Env.App.Port); err != nil {
 		panic(err)
 	}
+}
+
+func (h *httpServer) GracefullyShutdown() {
+	sigChan := make(chan os.Signal, 1)
+
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<- sigChan
+		h.shutdown()
+	}()
+}
+
+func (h *httpServer) StartWorkers() {
+	
 }
 
 func (h *httpServer) shutdown() {
@@ -148,16 +162,6 @@ func (h *httpServer) shutdown() {
 	}
 
 	wg.Wait()
-}
-
-func (h *httpServer) GracefullyShutdown() {
-	sigChan := make(chan os.Signal, 1)
-
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<- sigChan
-		h.shutdown()
-	}()
 }
 
 func (h *httpServer) logRoutes() {

@@ -24,9 +24,8 @@ func NewDatabase(env *env.Env) *sqlx.DB {
 		panic(err)
 	}
 
-	client := db.DB
-	client.SetMaxIdleConns(10)
-	client.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(10)
 
 	return db
 }

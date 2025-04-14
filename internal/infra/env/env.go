@@ -23,6 +23,13 @@ type Env struct {
 		ApiKeyHeader string `json:"apiKeyHeader"`
 	} `json:"app"`
 
+	RabbitMQ struct {
+		Host	 string `json:"host"`
+		Port	 int    `json:"port"`
+		User	 string `json:"user"`
+		Password string `json:"password"`
+	} `json:"rabbitmq"`
+
 	Logger struct {
 		Type string `json:"type"`
 	} `json:"logger"`

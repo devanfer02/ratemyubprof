@@ -47,11 +47,8 @@ func migrateDB() {
 		db = database.NewDatabase(env)
 	)
 
-	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
+	driver := must(postgres.WithInstance(db.DB, &postgres.Config{}))
 
-	if err != nil {
-		panic(err)
-	}
 	m := must(migrate.NewWithDatabaseInstance(
 		"file://./internal/infra/database/postgres/migrations",
 		env.Database.Name, driver,
@@ -85,13 +82,11 @@ func seedDB() {
 	mustv(sonic.Unmarshal(data, &professors))
 
 	entities = formatter.FormatProfessorStaticToEntity(professors)
-
 	
 	client := must(repo.NewClient(false))
 
-	if err := client.InsertProfessorsBulk(context.Background(), entities); err != nil {
-		panic(err)
-	}
+	mustv(client.InsertProfessorsBulk(context.Background(), entities))
+
 
 	log.Println("[RateMyUbProf] Seeding completed!")
 }
