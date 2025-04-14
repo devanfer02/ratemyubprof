@@ -20,11 +20,16 @@ import (
 	prof_repo "github.com/devanfer02/ratemyubprof/internal/app/professor/repository"
 	prof_svc "github.com/devanfer02/ratemyubprof/internal/app/professor/service"
 
+	review_ctr "github.com/devanfer02/ratemyubprof/internal/app/review/controller"
 	review_repo "github.com/devanfer02/ratemyubprof/internal/app/review/repository"
 	review_svc "github.com/devanfer02/ratemyubprof/internal/app/review/service"
 
+	reaction_repo "github.com/devanfer02/ratemyubprof/internal/app/reaction/repository"
+	reaction_svc "github.com/devanfer02/ratemyubprof/internal/app/reaction/service"
+
 	"github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
+	"github.com/devanfer02/ratemyubprof/internal/infra/rabbitmq"
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
 	"github.com/devanfer02/ratemyubprof/pkg/config"
 	logger "github.com/devanfer02/ratemyubprof/pkg/log"
@@ -40,12 +45,13 @@ type httpHandler interface {
 }
 
 type httpServer struct {
-	Env *env.Env 
-	Router *echo.Echo
-	Database *sqlx.DB 
-	Logger *zap.Logger
+	Env       *env.Env
+	Router    *echo.Echo
+	Database  *sqlx.DB
+	Logger    *zap.Logger
 	Validator *validator.Validate
-	Handlers []httpHandler
+	RabbitMQ  *rabbitmq.RabbitMQ
+	Handlers  []httpHandler
 }
 
 func NewHttpServer() Server {
@@ -54,14 +60,16 @@ func NewHttpServer() Server {
 	logger := logger.NewLogger(env)
 	router := config.NewRouter()
 	validator := config.NewValidator()
+	rabbitMq := rabbitmq.NewRabbitMQ(env, logger)
 
 	return &httpServer{
-		Env: env,
-		Logger: logger,
-		Router: router,
-		Database: db,
+		Env:       env,
+		Logger:    logger,
+		Router:    router,
+		Database:  db,
 		Validator: validator,
-		Handlers: make([]httpHandler, 0),
+		RabbitMQ:  rabbitMq,
+		Handlers:  make([]httpHandler, 0),
 	}
 }
 
@@ -72,39 +80,48 @@ func (h *httpServer) MountHandlers() {
 	userRepo := user_repo.NewUserRepository(h.Database)
 	reviewRepo := review_repo.NewReviewRepository(h.Database)
 	profRepo := prof_repo.NewProfessorRepository(h.Database)
-	
+	reactionRepo := reaction_repo.NewReviewReactionRepository(h.Database)
+
 	profSvc := prof_svc.NewProfessorService(profRepo)
 	userSvc := user_svc.NewUserService(userRepo, jwtHandler)
 	authSvc := auth_svc.NewAuthService(userRepo, jwtHandler)
 	reviewSvc := review_svc.NewReviewService(reviewRepo)
+	reactionSvc := reaction_svc.NewReviewReactionService(reactionRepo, h.Logger, h.RabbitMQ)
 
-	profCtr := prof_ctr.NewProfessorController(profSvc, reviewSvc,h.Validator, middleware)
+	profCtr := prof_ctr.NewProfessorController(profSvc, reviewSvc, h.Validator, middleware)
 	userCtr := user_ctr.NewUserController(userSvc, reviewSvc, h.Validator, middleware)
 	authCtr := auth_ctr.NewAuthController(authSvc, h.Validator, middleware)
+	reviewCtr := review_ctr.NewReviewController(reactionSvc, h.Validator, middleware)
 
 	h.Handlers = append(
-		h.Handlers, 
+		h.Handlers,
 		userCtr,
 		profCtr,
 		authCtr,
+		reviewCtr,
 	)
+
+	// Start External Background Services
+	reactionSvc.StartWorkers(context.Background())
 }
 
 func (h *httpServer) Start() {
 	h.Router.Use(middleware.ErrLogger(h.Logger))
 	h.Router.Use(middleware.RequestLogger(h.Logger))
 	h.Router.Use(middleware.ApiKey(h.Env))
+
+	h.RabbitMQ.DeclareQueues()
 	h.MountHandlers()
 
 	for _, handler := range h.Handlers {
 		handler.Mount(h.Router.Group("/api/v1"))
 	}
-	
+
 	if h.Env.App.Env == "development" {
 		h.logRoutes()
 	}
 	h.Logger.Info("Starting up the application....")
-	
+
 	if err := h.Router.Start(":" + h.Env.App.Port); err != nil {
 		panic(err)
 	}
@@ -115,25 +132,21 @@ func (h *httpServer) GracefullyShutdown() {
 
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
-		<- sigChan
+		<-sigChan
 		h.shutdown()
 	}()
-}
-
-func (h *httpServer) StartWorkers() {
-	
 }
 
 func (h *httpServer) shutdown() {
 	h.Logger.Info("Shutting down application...")
 
-	timeoutFunc := time.AfterFunc(5 * time.Second, func() {
+	timeoutFunc := time.AfterFunc(5*time.Second, func() {
 		log.Println("Timeout, forcefully shutting down...")
 	})
 
 	defer timeoutFunc.Stop()
 
-	operations := map[string]func(ctx context.Context) error {
+	operations := map[string]func(ctx context.Context) error{
 		"database": func(ctx context.Context) error {
 			return h.Database.Close()
 		},
@@ -143,10 +156,13 @@ func (h *httpServer) shutdown() {
 		"router": func(ctx context.Context) error {
 			return h.Router.Close()
 		},
+		"rabbitmq": func(ctx context.Context) error {
+			return h.RabbitMQ.Close()
+		},
 	}
 
 	var wg sync.WaitGroup
-	
+
 	for key, operation := range operations {
 		wg.Add(1)
 		go func(op func(ctx context.Context) error, name string) {

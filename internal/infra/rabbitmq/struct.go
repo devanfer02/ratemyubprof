@@ -8,10 +8,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	ReactionReviewCreateQueue = "review-reactions.create"
-	ReactionReviewDeleteQueue = "review-reactions.create"
-)
 
 type RabbitMQ struct {
 	logger *zap.Logger
@@ -20,7 +16,7 @@ type RabbitMQ struct {
 
 func NewRabbitMQ(env *env.Env, logger *zap.Logger) *RabbitMQ {
 	conn, err := amqp091.Dial(
-		fmt.Sprintf("ampq://%s:%s@%s:%d/",
+		fmt.Sprintf("amqp://%s:%s@%s:%d/",
 			env.RabbitMQ.User,
 			env.RabbitMQ.Password,
 			env.RabbitMQ.Host,
@@ -39,8 +35,6 @@ func NewRabbitMQ(env *env.Env, logger *zap.Logger) *RabbitMQ {
 	return rabbitMQ
 }
 
-func (r *RabbitMQ) Close() {
-	if err := r.conn.Close(); err != nil {
-		panic(err)
-	}
+func (r *RabbitMQ) Close() error {
+	return r.conn.Close()
 }

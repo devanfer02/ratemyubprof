@@ -2,6 +2,17 @@ package rabbitmq
 
 import "github.com/rabbitmq/amqp091-go"
 
+type QueueType string 
+
+const (
+	ReactionReviewCreateQueue QueueType = "review-reactions.create"
+	ReactionReviewDeleteQueue QueueType = "review-reactions.create"
+)
+
+func (q QueueType) String() string {
+	return string(q)
+}
+
 type Queue struct {
 	Name string 
 	Durable bool
@@ -21,7 +32,7 @@ func (r *RabbitMQ) DeclareQueues() error {
 
 	queues := []Queue{
 		{
-			Name: ReactionReviewCreateQueue,
+			Name: ReactionReviewCreateQueue.String(),
 			Durable: true,
 			AutoDelete: false,
 			Exclusive: true,
@@ -29,7 +40,7 @@ func (r *RabbitMQ) DeclareQueues() error {
 			Args: nil,
 		},
 		{
-			Name: ReactionReviewDeleteQueue,
+			Name: ReactionReviewDeleteQueue.String(),
 			Durable: true,
 			AutoDelete: false,
 			Exclusive: true,

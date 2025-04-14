@@ -2,12 +2,12 @@ package dto
 
 type FetchReviewResponse struct {
 	ID           string                 `json:"id"`
-	ProfessorID  string                 `json:"prof_id"`
-	UserID       string                 `json:"user_id"`
+	ProfessorID  string                 `json:"profId"`
+	UserID       string                 `json:"userId"`
 	Comment      string                 `json:"comment"`
-	DiffRate     float32                `json:"difficulty_rating"`
-	FriendlyRate float32                `json:"friendly_rating"`
-	CreatedAt    string                 `json:"created_at"`
+	DiffRate     float32                `json:"difficultyRating"`
+	FriendlyRate float32                `json:"friendlyRating"`
+	CreatedAt    string                 `json:"createdAt"`
 	User         FetchUserResponse      `json:"user"`
 	Professor    FetchProfessorResponse `json:"professor"`
 }

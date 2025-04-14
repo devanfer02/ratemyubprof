@@ -7,7 +7,7 @@ import (
 	"github.com/rabbitmq/amqp091-go"
 )
 
-func (r *RabbitMQ) Publish(ctx context.Context, queueName string, data any) error {
+func (r *RabbitMQ) Publish(ctx context.Context, queueName QueueType, data any) error {
 	ch, err := r.conn.Channel()
 	if err != nil {
 		return err 
@@ -23,7 +23,7 @@ func (r *RabbitMQ) Publish(ctx context.Context, queueName string, data any) erro
 	return ch.PublishWithContext(
 		ctx,
 		"",
-		queueName,
+		queueName.String(),
 		false,
 		false,
 		amqp091.Publishing{

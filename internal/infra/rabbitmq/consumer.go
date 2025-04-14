@@ -38,7 +38,8 @@ func Consume[T any](ctx context.Context, queueName string, rabbit *RabbitMQ) (<-
 			var data T 
 
 			if err := sonic.Unmarshal(d.Body, &data); err != nil {
-				rabbit.logger.Error("Error Unmarshalling Message",
+				rabbit.logger.Error(
+					"[RabbitMQ] Error Unmarshalling Message",
 					zap.String("Queue", queueName),
 					zap.String("Message", string(d.Body)),
 					zap.String("Error", err.Error()),
