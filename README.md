@@ -59,4 +59,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Tech Stacks
 
-[![My Skills](https://skillicons.dev/icons?i=golang,nginx,docker,kubernetes,postgres,rabbitmq)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=golang,nginx,docker,kubernetes,postgres,rabbitmq)](https://skillicons.dev) 

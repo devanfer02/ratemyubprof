@@ -32,6 +32,7 @@ func Consume[T any](ctx context.Context, queueName string, rabbit *RabbitMQ) (<-
 
 	go func() {
 		defer ch.Close()
+		defer close(out)
 		for d := range msgs {
 			var data T 
 
