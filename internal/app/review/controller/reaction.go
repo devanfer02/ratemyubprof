@@ -27,6 +27,8 @@ func (c *ReviewController) CreateReaction(ectx echo.Context) error {
 		return err 
 	}
 
+	req.UserID = ectx.Get("userId").(string)
+
 	err := c.reactionSvc.PublishReaction(ctx, rabbitmq.ReactionReviewCreateQueue, &req)
 
 	if err != nil {

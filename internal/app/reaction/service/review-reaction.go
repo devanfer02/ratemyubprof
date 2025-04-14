@@ -54,7 +54,7 @@ func (s *ReviewReactionService) StartWorkers(ctx context.Context) {
 	for _, action := range actions {
 		go func(worker Worker) {
 			reqs, err := rabbitmq.Consume[dto.ReviewReactionRequest](
-				context.Background(),
+				ctx,
 				worker.QueueType.String(),
 				s.rabbitMQ,
 			)
@@ -65,9 +65,14 @@ func (s *ReviewReactionService) StartWorkers(ctx context.Context) {
 					zap.String("Queue", worker.QueueType.String()),
 					zap.String("Error", err.Error()),
 				)
+				return 
 			}
 
 			for req := range reqs {
+				s.logger.Info(
+					"[RabbitMQ] Received message!",
+					zap.String("Queue", worker.QueueType.String()),
+				)
 				if err := action.HandleFn(ctx, &req); err != nil {
 					s.logger.Error(
 						"[RabbitMQ] Error handling message",

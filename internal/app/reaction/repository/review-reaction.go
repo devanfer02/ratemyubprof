@@ -9,9 +9,13 @@ import (
 )
 
 func (r *reviewReactionRepositoryImplPostgre) CreateReaction(ctx context.Context, entity *entity.ReviewReaction) error {
-	qb := goqu. 
-		Insert(reviewReactionTableName). 
-		Rows(entity).
+	qb := goqu.
+		Insert(reviewReactionTableName).
+		Rows(goqu.Record{
+			"review_id":     entity.ReviewID,
+			"user_id":       entity.UserID,
+			"reaction_type": entity.Type,
+		}).
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)
 

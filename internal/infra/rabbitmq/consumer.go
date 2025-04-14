@@ -13,8 +13,6 @@ func Consume[T any](ctx context.Context, queueName string, rabbit *RabbitMQ) (<-
 		return nil, err 
 	}
 
-	defer ch.Close()
-
 	msgs, err := ch.ConsumeWithContext(
 		ctx,
 		queueName,
@@ -33,7 +31,7 @@ func Consume[T any](ctx context.Context, queueName string, rabbit *RabbitMQ) (<-
 	out := make(chan T)
 
 	go func() {
-		defer close(out)
+		defer ch.Close()
 		for d := range msgs {
 			var data T 
 
@@ -46,6 +44,8 @@ func Consume[T any](ctx context.Context, queueName string, rabbit *RabbitMQ) (<-
 				)
 				continue 
 			}
+
+			out <- data
 		}
 	}()
 	
