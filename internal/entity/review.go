@@ -14,6 +14,8 @@ type Review struct {
 
 type ReviewWithRelations struct {
 	Review
-	User      User      `db:"user"`
-	Professor Professor `db:"professor"`
+	User        User      `db:"user"`
+	Professor   Professor `db:"professor"`
+	LikeCounter int       `db:"like_counter"`
+	DislikeCounter int       `db:"dislike_counter"`
 }

@@ -8,6 +8,8 @@ type FetchReviewResponse struct {
 	DiffRate     float32                `json:"difficultyRating"`
 	FriendlyRate float32                `json:"friendlyRating"`
 	CreatedAt    string                 `json:"createdAt"`
+	Like         int                    `json:"like"`
+	Dislike      int                    `json:"dislike"`
 	User         FetchUserResponse      `json:"user"`
 	Professor    FetchProfessorResponse `json:"professor"`
 }
