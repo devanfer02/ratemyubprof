@@ -7,6 +7,7 @@ import (
 
 var (
 	reviewTableName    = "reviews"
+	reactionTableName  = "review_reactions"
 	professorTableName = "professors"
 	userTableName      = "users"
 )

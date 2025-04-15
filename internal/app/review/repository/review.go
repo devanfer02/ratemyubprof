@@ -26,7 +26,18 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 			goqu.I("p.faculty").As(goqu.C("professor.faculty")),
 			goqu.I("p.major").As(goqu.C("professor.major")),
 			goqu.I("p.profile_img_link").As(goqu.C("professor.profile_img_link")),
+			goqu.COUNT(
+				goqu.Case().
+					When(goqu.I("rr.reaction_type").Eq(entity.LikeReactionType), 1). 
+					Else(nil),
+			).As("like_counter"),
+			goqu.COUNT(
+				goqu.Case().
+					When(goqu.I("rr.reaction_type").Eq(entity.DislikeReactionType), 1). 
+					Else(nil),
+			).As("dislike_counter"),
 		).
+		GroupBy(goqu.I("r.id"), goqu.I("u.id"), goqu.I("p.id")).
 		From(goqu.T(reviewTableName).As("r")).
 		Join(
 			goqu.T(userTableName).As("u"),
@@ -35,7 +46,11 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 		Join(
 			goqu.T(professorTableName).As("p"),
 			goqu.On(goqu.I("r.prof_id").Eq(goqu.I("p.id"))),
-		)
+		). 
+		Join(
+			goqu.T(reactionTableName).As("rr"),
+			goqu.On(goqu.I("r.id").Eq(goqu.I("rr.review_id"))),
+		)	
 
 	if params.ProfId != "" {
 		qb = qb.Where(goqu.I("p.id").Eq(params.ProfId))
@@ -80,6 +95,8 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 			&review.Professor.Faculty,
 			&review.Professor.Major,
 			&review.Professor.ProfileImgLink,
+			&review.LikeCounter,
+			&review.DislikeCounter,
 		)
 		if err != nil {
 			return nil, apperr.NewFromError(err, "Failed to fetch reviews by params").SetLocation()
