@@ -1,0 +1,83 @@
+apiVersion: v1 
+kind: Secret
+metadata: 
+  name: postgres-secret
+  namespace: default
+type: Opaque
+stringData:
+  POSTGRES_USER: postgresuser
+  POSTGRES_PASSWORD: postgrespassword
+  POSTGRES_DB: postgres
+  TZ: Asia/Jakarta
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgre-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/postgre/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgre-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgre
+spec:
+  serviceName: "postgre"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgre
+  template:
+    metadata:
+      labels:
+        app: postgre
+    spec:
+      containers:
+        - name: postgre
+          image: postgres:16.1
+          ports:
+            - containerPort: 5432
+              name: postgre
+          envFrom:
+            - secretRef:
+                name: postgre-secret
+          volumeMounts:
+            - name: postgre-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgre-storage
+          persistentVolumeClaim:
+            claimName: postgre-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgre-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: postgre
+  ports:
+    - port: 5432
+      targetPort: 5432
