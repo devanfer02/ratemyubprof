@@ -84,7 +84,9 @@ func (p *professorRepositoryImplPostgre) DeleteProfessorReview(ctx context.Conte
 				goqu.I("reviews.prof_id").Eq(params.ProfId), 
 				goqu.I("reviews.user_id").Eq(params.UserId),
 			),
-		)
+		). 
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
 
 	query, args, err := qb.ToSQL()
 	if err != nil {

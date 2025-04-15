@@ -11,7 +11,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
 )
 
-func (s *ReviewReactionService) PublishReaction(ctx context.Context, queueType rabbitmq.QueueType, req *dto.ReviewReactionRequest) error {
+func (s *reviewReactionService) PublishReaction(ctx context.Context, queueType rabbitmq.QueueType, req *dto.ReviewReactionRequest) error {
 	// Publish to RabbitMQ
 	err := s.rabbitMQ.Publish(ctx, queueType, req)
 
@@ -22,7 +22,7 @@ func (s *ReviewReactionService) PublishReaction(ctx context.Context, queueType r
 	return nil 
 }
 
-func (s *ReviewReactionService) CreateReaction(ctx context.Context, req *dto.ReviewReactionRequest) error {
+func (s *reviewReactionService) CreateReaction(ctx context.Context, req *dto.ReviewReactionRequest) error {
 	// Spawn context with timeout
 	ctx, cancel := context.WithTimeout(ctx, 10 * time.Second)
 	defer cancel()
@@ -47,4 +47,30 @@ func (s *ReviewReactionService) CreateReaction(ctx context.Context, req *dto.Rev
 		return nil 
 	}
 
+}
+
+func (s *reviewReactionService) DeleteReaction(ctx context.Context, req *dto.ReviewReactionRequest) error {
+	// Spawn context with timeout
+	ctx, cancel := context.WithTimeout(ctx, 10 * time.Second)
+	defer cancel()
+
+	// Insert Creation to Database
+	repoClient, err := s.reactionRepo.NewClient(false)
+	if err != nil {
+		return err 
+	}
+
+	entity := formatter.FormatReactionToEntity(req)
+	err = repoClient.DeleteReaction(ctx, entity)
+
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to create review reaction").SetLocation()
+	}
+
+	select {
+	case <- ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return nil 
+	}
 }

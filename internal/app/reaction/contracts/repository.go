@@ -12,4 +12,5 @@ type ReviewReactionRepositoryProvider interface {
 
 type ReviewReactionRepository interface {
 	CreateReaction(ctx context.Context, entity *entity.ReviewReaction) error
+	DeleteReaction(ctx context.Context, entity *entity.ReviewReaction) error
 }

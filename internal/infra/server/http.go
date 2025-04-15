@@ -141,6 +141,10 @@ func (h *httpServer) MountWorkers() {
 			QueueType: rabbitmq.ReactionReviewCreateQueue,
 			HandleFn: h.Services.reactionSvc.CreateReaction,
 		},
+		{
+			QueueType: rabbitmq.ReactionReviewDeleteQueue,
+			HandleFn: h.Services.reactionSvc.DeleteReaction,
+		},
 	}
 
 	h.RabbitMQ.StartReactionWorkers(context.Background(), workers)
@@ -159,7 +163,7 @@ func (h *httpServer) GracefullyShutdown() {
 func (h *httpServer) shutdown() {
 	h.Logger.Info("Shutting down application...")
 
-	timeoutFunc := time.AfterFunc(5*time.Second, func() {
+	timeoutFunc := time.AfterFunc(10*time.Second, func() {
 		log.Println("Timeout, forcefully shutting down...")
 	})
 
