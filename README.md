@@ -2,7 +2,11 @@
 
 RateMyUBProf is a web application designed to help students rate and review professors at their university precisely Brawijaya University so other students could prepare the best for their upcomming class professor.
 
+This application is using [Go v1.24](https://tip.golang.org/doc/go1.24), [PostgreSQL 16](https://www.postgresql.org/) and [RabbitMQ](https://www.rabbitmq.com/docs/download), make sure you already installed the required dependency for this application.
+
 ## Development Setup
+
+You can use [devcontainer](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers) to setup project development, just make sure you have installed docker already!.
 
 1. Clone the repository:
 ```zsh
@@ -14,10 +18,11 @@ cd ratemyubprof
 
 3. Setup database environment variables file `.db.env` from `.db.env.example`.
 
-3. Run the migration with migrate cli and makefile
+3. Run the migration with migrate cli or application main entry and makefile
 
 ```zsh
-make migrate-up
+make migrate-up # use migrate cli
+make migrate    # use defined method in main 
 ```
 
 3. Run the application
@@ -28,6 +33,11 @@ make air # Live reload with air
 ```
    
 4. Access the application at `http://localhost:{PORT}`.
+
+5. To run unit tests, just run the command
+```zsh
+make test
+```
 
 ## Deployment
 
