@@ -33,3 +33,12 @@ RUN go install github.com/air-verse/air@latest
 RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.2/migrate.linux-amd64.tar.gz | tar xvz  && \
 mv migrate /go/bin/migrate && \
 chmod +x /go/bin/migrate
+
+# Assuming the user is vscode (common for devcontainers)
+USER root
+
+# Fix permission for go module cache
+RUN chown -R vscode:vscode /go
+
+# Back to non-root user for safety
+USER vscode
