@@ -26,6 +26,7 @@ import (
 
 	reaction_repo "github.com/devanfer02/ratemyubprof/internal/app/reaction/repository"
 	reaction_svc "github.com/devanfer02/ratemyubprof/internal/app/reaction/service"
+	reaction_crs "github.com/devanfer02/ratemyubprof/internal/app/reaction/contracts"
 
 	"github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
@@ -44,6 +45,10 @@ type httpHandler interface {
 	Mount(e *echo.Group)
 }
 
+type servicesRegistry struct {
+	reactionSvc reaction_crs.ReviewReactionService
+}
+
 type httpServer struct {
 	Env       *env.Env
 	Router    *echo.Echo
@@ -52,6 +57,7 @@ type httpServer struct {
 	Validator *validator.Validate
 	RabbitMQ  *rabbitmq.RabbitMQ
 	Handlers  []httpHandler
+	Services  servicesRegistry
 }
 
 func NewHttpServer() Server {
@@ -70,6 +76,7 @@ func NewHttpServer() Server {
 		Validator: validator,
 		RabbitMQ:  rabbitMq,
 		Handlers:  make([]httpHandler, 0),
+		Services:  servicesRegistry{},
 	}
 }
 
@@ -101,8 +108,7 @@ func (h *httpServer) MountHandlers() {
 		reviewCtr,
 	)
 
-	// Start External Background Services
-	reactionSvc.StartWorkers(context.Background())
+	h.Services.reactionSvc = reactionSvc
 }
 
 func (h *httpServer) Start() {
@@ -110,8 +116,9 @@ func (h *httpServer) Start() {
 	h.Router.Use(middleware.RequestLogger(h.Logger))
 	h.Router.Use(middleware.ApiKey(h.Env))
 
-	h.RabbitMQ.DeclareQueues()
+	h.RabbitMQ.DeclareQueues()	
 	h.MountHandlers()
+	h.MountWorkers()
 
 	for _, handler := range h.Handlers {
 		handler.Mount(h.Router.Group("/api/v1"))
@@ -125,6 +132,18 @@ func (h *httpServer) Start() {
 	if err := h.Router.Start(":" + h.Env.App.Port); err != nil {
 		panic(err)
 	}
+}
+
+func (h *httpServer) MountWorkers() {	
+
+	workers := []rabbitmq.ReactionWorker{
+		{
+			QueueType: rabbitmq.ReactionReviewCreateQueue,
+			HandleFn: h.Services.reactionSvc.CreateReaction,
+		},
+	}
+
+	h.RabbitMQ.StartReactionWorkers(context.Background(), workers)
 }
 
 func (h *httpServer) GracefullyShutdown() {

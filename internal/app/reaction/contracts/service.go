@@ -10,5 +10,4 @@ import (
 type ReviewReactionService interface {
 	PublishReaction(ctx context.Context, queueType rabbitmq.QueueType, req *dto.ReviewReactionRequest) error
 	CreateReaction(ctx context.Context, req *dto.ReviewReactionRequest) error
-	StartWorkers(ctx context.Context)
 }

@@ -34,7 +34,7 @@ func (c *AuthController) Login(ectx echo.Context) error {
 	}
 
 	resp = response.New(
-		"Successfully register user",
+		"Successfully login user",
 		token,
 		nil,
 	)

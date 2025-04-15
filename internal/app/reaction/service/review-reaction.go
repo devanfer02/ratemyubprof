@@ -9,13 +9,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/infra/rabbitmq"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
-	"go.uber.org/zap"
 )
-
-type Worker struct {
-	QueueType rabbitmq.QueueType
-	HandleFn func(ctx context.Context, req *dto.ReviewReactionRequest) error
-}
 
 func (s *ReviewReactionService) PublishReaction(ctx context.Context, queueType rabbitmq.QueueType, req *dto.ReviewReactionRequest) error {
 	// Publish to RabbitMQ
@@ -54,57 +48,3 @@ func (s *ReviewReactionService) CreateReaction(ctx context.Context, req *dto.Rev
 	}
 
 }
-
-func (s *ReviewReactionService) StartWorkers(ctx context.Context) {
-	actions := []Worker{
-		{
-			QueueType: rabbitmq.ReactionReviewCreateQueue,
-			HandleFn: s.CreateReaction,
-		},
-	}
-
-	for _, action := range actions {
-		go func(worker Worker) {			
-			reqs, err := rabbitmq.Consume[dto.ReviewReactionRequest](
-				ctx,
-				worker.QueueType.String(),
-				s.rabbitMQ,
-			)
-
-			if err != nil {
-				s.logger.Error(
-					"[RabbitMQ] Error consuming message",
-					zap.String("Queue", worker.QueueType.String()),
-					zap.String("Error", err.Error()),
-				)
-				return 
-			}
-
-			// Limit to 10 concurrent actions per worker 
-			sem := make(chan struct{}, 10)
-
-			for req := range reqs {
-				s.logger.Info(
-					"[RabbitMQ] Received message!",
-					zap.String("Queue", worker.QueueType.String()),
-				)
-
-				sem <- struct{}{}
-
-				go func(req dto.ReviewReactionRequest) {
-					defer func() { <- sem }()
-
-					if err := action.HandleFn(ctx, &req); err != nil {
-						s.logger.Error(
-							"[RabbitMQ] Error handling message",
-							zap.String("Queue", worker.QueueType.String()),
-							zap.String("Error", err.Error()),
-						)
-					}
-				}(req)
-
-			}
-		}(action)
-	}
-}
-

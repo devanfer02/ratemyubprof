@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/devanfer02/ratemyubprof/internal/app/reaction/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/doug-martin/goqu/v9"
@@ -30,6 +31,11 @@ func (r *reviewReactionRepositoryImplPostgre) CreateReaction(ctx context.Context
 	_, err = r.conn.QueryxContext(ctx, query, args...)
 
 	if err != nil {
+
+		if contracts.IsErrorCode(err, contracts.PgsqlUniqueViolationErr) {
+			return contracts.ErrItemAlreadyExists
+		}
+
 		return apperr.NewFromError(err, "Failed to create review reaction").SetLocation()
 	}
 
