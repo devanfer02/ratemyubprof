@@ -48,3 +48,41 @@ func (c *ReviewController) CreateReaction(ectx echo.Context) error {
 		return ectx.JSON(http.StatusCreated, res)
 	}
 }
+
+func (c *ReviewController) DeleteReaction(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		req dto.ReviewReactionRequest
+	)
+
+	if err := ectx.Bind(&req); err != nil {
+		return err 
+	}
+
+	if err := c.validator.Struct(req); err != nil {
+		return err 
+	}
+
+	req.UserID = ectx.Get("userId").(string)
+
+	err := c.reactionSvc.PublishReaction(ctx, rabbitmq.ReactionReviewDeleteQueue, &req)
+
+	if err != nil {
+		return err 
+	}
+
+	res := response.New(
+		"successfully published delete review reaction to queue",
+		nil,
+		nil, 
+	)
+
+	select {
+	case <- ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusCreated, res)
+	}
+}

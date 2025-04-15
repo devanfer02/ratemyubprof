@@ -41,3 +41,42 @@ func (r *reviewReactionRepositoryImplPostgre) CreateReaction(ctx context.Context
 
 	return nil
 }
+
+func (r *reviewReactionRepositoryImplPostgre) DeleteReaction(ctx context.Context, entity *entity.ReviewReaction) error {
+	qb := goqu. 
+		Delete(reviewReactionTableName). 
+		Where(goqu.And(
+			goqu.Ex{"review_id": entity.ReviewID},
+			goqu.Ex{"user_id": entity.UserID},
+		)). 
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to delete review reaction").SetLocation()
+	}
+
+	query = r.conn.Rebind(query)
+
+	res, err := r.conn.ExecContext(ctx, query, args...)
+
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to delete review reaction").SetLocation()
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()
+	}
+
+	if rows == 0 {
+		return contracts.ErrItemNotFound
+	}
+
+	if rows > 1 {
+		return contracts.ErrMoreThanOneAffected
+	}
+
+	return nil 
+}

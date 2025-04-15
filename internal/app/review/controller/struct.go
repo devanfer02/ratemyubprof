@@ -29,5 +29,5 @@ func (c *ReviewController) Mount(r *echo.Group) {
 	profR := r.Group("/reviews")
 
 	profR.POST("/:id/reactions", c.CreateReaction, c.mdlwr.Authenticate())
-
+	profR.DELETE("/:id/reactions", c.DeleteReaction, c.mdlwr.Authenticate())
 }
