@@ -29,6 +29,7 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 	query = u.conn.Rebind(query)
 
 	_, err = u.conn.ExecContext(ctx, query, args...)
+
 	if err != nil {
 		
 		if contracts.IsErrorCode(err, contracts.PgsqlUniqueViolationErr) {

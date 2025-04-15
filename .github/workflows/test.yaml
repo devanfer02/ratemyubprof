@@ -1,0 +1,46 @@
+name: Running UT and Coverage
+
+on: 
+  push:
+    branches: 
+        - master
+        - 'test/*'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  pie-chart-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Golang
+      uses: actions/setup-go@v4
+      with: 
+        go-version: 1.22.3
+
+    - name: Install Dependencies
+      run: go mod tidy
+    
+    - name: Run Testing
+      uses: robherley/go-test-action@v0.1.0
+      with:
+        omit: 'pie'
+        testArguments: ./tests/...
+
+  coverage-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+      
+      - name: generate test coverage
+        run: go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+    
+      - name: check test coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          config: ./.testcoverage.yml
