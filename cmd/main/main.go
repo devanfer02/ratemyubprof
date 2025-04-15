@@ -67,7 +67,7 @@ func seedDB() {
 	var (
 		professors []dto.ProfessorStatic
 		entities   []entity.Professor
-		fileName   = "data/dosenub.json"
+		fileName   = "deploy/data/dosenub.json"
 
 		env = env.NewEnv()
 		db = database.NewDatabase(env)
