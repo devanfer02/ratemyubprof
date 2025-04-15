@@ -6,7 +6,7 @@ This application is using [Go v1.24](https://tip.golang.org/doc/go1.24), [Postgr
 
 ## Development Setup
 
-You can use [devcontainer](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers) to setup project development, just make sure you have installed docker already!.
+You can use [devcontainer](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers) to setup project development, just make sure you have installed docker already! Some commands that need root access like `docker` cli and running unit test (use `testcontainer-go`)need root access in devcontainer so make sure you run it with sudo if needed. 
 
 1. Clone the repository:
 ```zsh
