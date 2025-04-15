@@ -45,3 +45,4 @@ env.json
 .db.env
 *.log
 todo.txt
+cover.out
