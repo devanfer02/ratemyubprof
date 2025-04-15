@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
@@ -66,6 +67,10 @@ func (u *userRepositoryImplPostgre) FetchUserByUsername(ctx context.Context, use
 	var user entity.User
 	err = u.conn.QueryRowxContext(ctx, query, args...).StructScan(&user)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, contracts.ErrUserNotExists
+		}
+
 		return nil, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
 	}
 
