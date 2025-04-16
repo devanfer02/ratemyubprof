@@ -14,9 +14,24 @@ import (
 func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context, params *dto.FetchProfessorParam, pageQuery *dto.PaginationQuery) ([]entity.Professor, error) {
 	var professors []entity.Professor
 
+	goqu.Func("/", goqu.I("sum_diff_rate"), goqu.I("review_count")).As("diff_rating")
 	qb := goqu.
-		Select("id", "name", "faculty", "major", "profile_img_link").
-		From(professorTableName).
+		Select(
+			goqu.I("p.id"), 
+			goqu.I("p.name"),
+			goqu.I("p.faculty"),
+			goqu.I("p.major"),
+			goqu.I("p.profile_img_link"),
+			goqu.COUNT(goqu.I("r.id")).As("reviews_count"),
+			goqu.Func("AVG", goqu.Func("COALESCE", goqu.I("r.difficulty_rating"), goqu.V(0))).As("avg_diff_rate"),
+			goqu.Func("AVG", goqu.Func("COALESCE", goqu.I("r.friendly_rating"), goqu.V(0))).As("avg_friendly_rate"),
+		).
+		GroupBy(goqu.I("p.id")).
+		From(goqu.T(professorTableName).As("p")).
+		LeftJoin(
+			goqu.T(reviewTableName).As("r"),
+			goqu.On(goqu.I("r.prof_id").Eq(goqu.I("p.id"))),
+		).
 		Order(goqu.I("name").Asc()).
 		SetDialect(goqu.GetDialect("postgres")).
 		Prepared(true)

@@ -32,6 +32,7 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 
 	err = repoClient.InsertUser(ctx, &entity.User{
 		ID: ulid.Make().String(),
+		NIM: usr.NIM,
 		Username: usr.Username,
 		Password: hashed,
 	})

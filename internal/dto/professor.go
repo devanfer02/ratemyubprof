@@ -16,13 +16,16 @@ type ProfessorReviewRequest struct {
 }
 
 type FetchProfessorResponse struct {
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	Faculty        string `json:"faculty"`
-	Major          string `json:"major"`
-	ProfileImgLink string `json:"profileImgLink"`
-	CreatedAt      string `json:"createdAt"`
-	UpdatedAt      string `json:"updatedAt"`
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	Faculty         string  `json:"faculty"`
+	Major           string  `json:"major"`
+	ProfileImgLink  string  `json:"profileImgLink"`
+	ReviewsCount    uint64  `json:"reviewsCount"`
+	AvgDiffRate     float32 `json:"avgDiffRate"`
+	AvgFriendlyRate float32 `json:"avgFriendlyRate"`
+	CreatedAt       string  `json:"createdAt"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type FetchProfessorParam struct {

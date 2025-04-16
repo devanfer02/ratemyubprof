@@ -71,6 +71,7 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 
 	query = p.conn.Rebind(query)
 
+
 	rows, err := p.conn.QueryxContext(ctx, query, args...)
 	if err != nil {
 		return nil, apperr.NewFromError(err, "Failed to fetch reviews by params").SetLocation()
@@ -79,6 +80,7 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 
 	var reviews []entity.ReviewWithRelations
 	for rows.Next() {
+		
 		var review entity.ReviewWithRelations
 		err := rows.Scan(
 			&review.ID,
