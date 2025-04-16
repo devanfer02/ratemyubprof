@@ -12,10 +12,10 @@ func FormatProfessorStaticToEntity(professors []dto.ProfessorStatic) []entity.Pr
 	var professorsEntity []entity.Professor
 	for _, professor := range professors {
 		professorsEntity = append(professorsEntity, entity.Professor{
-			ID: ulid.Make().String(),
-			Name:    strings.Trim(professor.Name, " "),
-			Faculty: professor.Fakultas,
-			Major:   professor.Prodi,
+			ID:             ulid.Make().String(),
+			Name:           strings.Trim(professor.Name, " "),
+			Faculty:        professor.Fakultas,
+			Major:          professor.Prodi,
 			ProfileImgLink: professor.ImgLink,
 		})
 	}
@@ -33,12 +33,15 @@ func FormatProfessorEntitiesToDto(professors []entity.Professor) []dto.FetchProf
 
 func FormatProfessorEntityToDto(professor entity.Professor) dto.FetchProfessorResponse {
 	return dto.FetchProfessorResponse{
-		ID:             professor.ID,
-		Name:           professor.Name,
-		Faculty:        professor.Faculty,
-		Major:          professor.Major,
-		ProfileImgLink: professor.ProfileImgLink,
-		CreatedAt:      professor.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt:      professor.UpdatedAt.Format("2006-01-02 15:04:05"),
+		ID:              professor.ID,
+		Name:            professor.Name,
+		Faculty:         professor.Faculty,
+		Major:           professor.Major,
+		ProfileImgLink:  professor.ProfileImgLink,
+		AvgDiffRate:     professor.AvgDiffRate,
+		AvgFriendlyRate: professor.AvgFriendlyRate,
+		ReviewsCount:    professor.ReviewsCount,
+		CreatedAt:       professor.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:       professor.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }
