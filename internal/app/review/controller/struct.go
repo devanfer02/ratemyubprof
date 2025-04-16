@@ -5,6 +5,7 @@ import (
 
 	reaction "github.com/devanfer02/ratemyubprof/internal/app/reaction/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
+	"github.com/devanfer02/ratemyubprof/pkg/config"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -28,6 +29,6 @@ func NewReviewController(reactionSvc reaction.ReviewReactionService, validator *
 func (c *ReviewController) Mount(r *echo.Group) {
 	profR := r.Group("/reviews")
 
-	profR.POST("/:id/reactions", c.CreateReaction, c.mdlwr.Authenticate())
-	profR.DELETE("/:id/reactions", c.DeleteReaction, c.mdlwr.Authenticate())
+	profR.POST("/:id/reactions", c.CreateReaction, c.mdlwr.Authenticate(), config.PostLimiter)
+	profR.DELETE("/:id/reactions", c.DeleteReaction, c.mdlwr.Authenticate(), config.PostLimiter)
 }
