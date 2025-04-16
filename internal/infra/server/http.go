@@ -24,9 +24,9 @@ import (
 	review_repo "github.com/devanfer02/ratemyubprof/internal/app/review/repository"
 	review_svc "github.com/devanfer02/ratemyubprof/internal/app/review/service"
 
+	reaction_crs "github.com/devanfer02/ratemyubprof/internal/app/reaction/contracts"
 	reaction_repo "github.com/devanfer02/ratemyubprof/internal/app/reaction/repository"
 	reaction_svc "github.com/devanfer02/ratemyubprof/internal/app/reaction/service"
-	reaction_crs "github.com/devanfer02/ratemyubprof/internal/app/reaction/contracts"
 
 	"github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
 	"github.com/devanfer02/ratemyubprof/internal/infra/env"
@@ -34,6 +34,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
 	"github.com/devanfer02/ratemyubprof/pkg/config"
 	logger "github.com/devanfer02/ratemyubprof/pkg/log"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"

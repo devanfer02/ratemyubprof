@@ -5,6 +5,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/auth/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
+	"github.com/devanfer02/ratemyubprof/pkg/config"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -28,6 +29,6 @@ func NewAuthController(userSvc contracts.AuthService, validator *validator.Valid
 func (c *AuthController) Mount(r *echo.Group) {
 	authR := r.Group("/auth")
 
-	authR.POST("/login", c.Login)
-	authR.POST("/refresh" ,c.RefreshToken)
+	authR.POST("/login", c.Login, config.PostLimiter)
+	authR.POST("/refresh" ,c.RefreshToken, config.PostLimiter)
 }

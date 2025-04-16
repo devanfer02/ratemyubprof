@@ -3,9 +3,11 @@ package controller
 import (
 	"time"
 
-	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	review "github.com/devanfer02/ratemyubprof/internal/app/review/contracts"
+	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/middleware"
+	"github.com/devanfer02/ratemyubprof/pkg/config"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -33,5 +35,5 @@ func (c *UserController) Mount(r *echo.Group) {
 
 	userR.GET("/:userId/reviews", c.FetchReviews)
 	userR.GET("/reviews", c.FetchReviews, c.mdlwr.Authenticate())
-	userR.POST("/register", c.Register)	
+	userR.POST("/register", c.Register, config.PostLimiter)	
 }

@@ -8,6 +8,12 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/time/rate"
+)
+
+var (
+	FetchLimiter = middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(2000)))
+	PostLimiter  = middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(200)))
 )
 
 func NewRouter() *echo.Echo {
@@ -16,8 +22,8 @@ func NewRouter() *echo.Echo {
 	router.JSONSerializer = newSonicJSONSerializer()
 	router.HTTPErrorHandler = errHandler()
 	router.Use(middleware.Recover())
-	
-	return router 
+
+	return router
 }
 
 func errHandler() echo.HTTPErrorHandler {
