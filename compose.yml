@@ -22,9 +22,6 @@ services:
   rabbitmq:
     image: rabbitmq:4.0-management
     container_name: ratemyubprof-rabbitmq
-    ports:
-      - "15672:15672"
-      - "5672:5672"
     volumes:
       - ./deploy/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     networks:
