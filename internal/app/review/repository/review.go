@@ -2,7 +2,10 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 
+	"github.com/devanfer02/ratemyubprof/internal/app/review/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
@@ -107,6 +110,46 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 	}
 
 	return reviews, nil
+
+}
+
+func (p *reviewRepositoryImplPostgre) FetchRatingDistributionByProfId(ctx context.Context, profId string, column entity.RatingDistributionCol) (entity.RatingDistribution, error) {
+	qb := goqu.From(goqu.T(reviewTableName).As("r")).Select(goqu.I("r.prof_id"))
+
+	for i := 1; i <= 5; i++ {
+		qb = qb.SelectAppend(
+			goqu.COUNT(
+				goqu.Case().
+					When(goqu.L("FLOOR(?) = ?", goqu.I(column), i), 1).
+					Else(nil),
+			).As(fmt.Sprintf("rating_%d", i)),
+		)
+	}
+
+	qb = qb.GroupBy(goqu.I("r.user_id"), goqu.I("r.prof_id"))
+
+	qb = qb.
+		Where(goqu.I("r.prof_id").Eq(profId)).
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	query, args, err := qb.ToSQL()
+	if err != nil {
+		return entity.RatingDistribution{}, apperr.NewFromError(err, "Failed to fetch rating distribution").SetLocation()
+	}
+
+	query = p.conn.Rebind(query)
+
+	var res entity.RatingDistribution
+	err = p.conn.QueryRowxContext(ctx, query, args...).StructScan(&res)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return entity.RatingDistribution{}, contracts.ErrProfessorNotFound
+		}
+		return entity.RatingDistribution{}, apperr.NewFromError(err, "Failed to fetch rating distribution").SetLocation()
+	}
+
+	return res, nil  
 
 }
 

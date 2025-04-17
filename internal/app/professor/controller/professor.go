@@ -54,7 +54,7 @@ func (c *ProfessorController) FetchByID(ectx echo.Context) error {
 
 	profId := ectx.Param("id")
 
-	professor, err := c.profSvc.FetchProfessorByID(ctx, profId)
+	professor, meta, err := c.profSvc.FetchProfessorByID(ctx, profId)
 	if err != nil {
 		return err 
 	}
@@ -62,7 +62,7 @@ func (c *ProfessorController) FetchByID(ectx echo.Context) error {
 	resp = response.New(
 		"Successfully fetched professor",
 		professor,
-		nil,
+		meta,
 	)
 
 	select {

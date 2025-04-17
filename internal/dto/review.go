@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/devanfer02/ratemyubprof/internal/entity"
+
 type FetchReviewResponse struct {
 	ID           string                 `json:"id"`
 	ProfessorID  string                 `json:"profId"`
@@ -17,4 +19,10 @@ type FetchReviewResponse struct {
 type FetchReviewParams struct {
 	ProfId string `param:"profId"`
 	UserId string `param:"userId"`
+}
+
+type ProfessorRatingDistribution struct {
+	ProfessorID           string                    `json:"profId"`
+	DiffcultyDistribution entity.RatingDistribution `json:"difficultyDistribution"`
+	FriendlyDistirbutuion entity.RatingDistribution `json:"friendlyDistribution"`
 }
