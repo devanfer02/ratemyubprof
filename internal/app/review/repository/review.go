@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/devanfer02/ratemyubprof/internal/app/review/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
@@ -144,8 +143,9 @@ func (p *reviewRepositoryImplPostgre) FetchRatingDistributionByProfId(ctx contex
 	var res entity.RatingDistribution
 	err = p.conn.QueryRowxContext(ctx, query, args...).StructScan(&res)
 	if err != nil {
+		// Return on no rows since it means no reviews yet
 		if err == sql.ErrNoRows {
-			return entity.RatingDistribution{}, contracts.ErrProfessorNotFound
+			return entity.RatingDistribution{}, nil
 		}
 		return entity.RatingDistribution{}, apperr.NewFromError(err, "Failed to fetch rating distribution").SetLocation()
 	}
