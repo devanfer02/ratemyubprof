@@ -16,7 +16,7 @@ func (s *authService) LoginUser(ctx context.Context, usr *dto.UserLoginRequest) 
 		return dto.UserTokenResponse{}, err 
 	}
 
-	user, err := repoClient.FetchUserByUsername(ctx, usr.Username)
+	user, err := repoClient.FetchUserByParams(ctx, &dto.FetchUserParams{Username: usr.Username})
 	if err != nil {
 		return dto.UserTokenResponse{}, err 
 	}
