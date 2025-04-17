@@ -1,22 +1,24 @@
 services:
   proxy:
-    container_name: ratemyubprof-poxy
+    container_name: ratemyubprof-proxy
     image: nginx:stable-alpine3.19
     ports:
       - "80:80"
     volumes:
       - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - server
+      - app
     networks:
       - ratemyubprof
-  server:
+  app:
     build:
       dockerfile: ./deploy/docker/Dockerfile
       context: .
     container_name: ratemyubprof-be
+    restart: always
     depends_on:
       - db 
+      - rabbitmq
     networks:
       - ratemyubprof 
   rabbitmq:
