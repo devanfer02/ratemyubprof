@@ -3,6 +3,7 @@ package contracts
 import (
 	"context"
 
+	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 )
 
@@ -11,6 +12,7 @@ type UserRepositoryProvider interface {
 }
 
 type UserRepository interface {
-	FetchUserByUsername(ctx context.Context, username string) (*entity.User, error)
+	FetchUserByParams(ctx context.Context, params *dto.FetchUserParams) (entity.User, error)
 	InsertUser(ctx context.Context, user *entity.User) error 	
+	UpdateUser(ctx context.Context, user *entity.User) error 	
 }

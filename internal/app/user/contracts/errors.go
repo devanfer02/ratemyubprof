@@ -12,6 +12,8 @@ var (
 	ErrUsernameTaken     = apperr.New(http.StatusConflict, "username is already taken")
 	ErrAlreadyRegistered = apperr.New(http.StatusConflict, "student already registered")
 	ErrUserNotExists     = apperr.New(http.StatusNotFound, "user does not exist")
+	ErrWeirdUpdate       = apperr.New(http.StatusInternalServerError, "weird behaviour update user")
+	ErrResetPasswordLimit = apperr.New(http.StatusTooManyRequests, "reset password limit reached")
 
 	PgsqlUniqueViolationErr = pq.ErrorCode("23505")
 )

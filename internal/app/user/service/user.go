@@ -2,7 +2,10 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
+	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/oklog/ulid/v2"
@@ -44,3 +47,48 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 	return nil 
 }
 
+func (s *userService) ForgotPassword(ctx context.Context, req *dto.ForgotPasswordRequest) error {
+	repoClient, err := s.userRepo.NewClient(false)
+
+	if err != nil {
+		return err 
+	}
+
+	// Check if user already registered or not before using SIAM Auth
+	user, err := repoClient.FetchUserByParams(ctx, &dto.FetchUserParams{Username: req.Username, NIM: req.NIM})
+	if err != nil {
+		return err 
+	}
+
+	// Check if recently user has reseted their password. Max Reset: 7Day/One Reset
+	if user.ForgotPasswordAt.Valid && user.ForgotPasswordAt.Time.Add(7 * 24 * time.Hour).After(time.Now()) {
+		return contracts.ErrResetPasswordLimit
+	}
+
+	authMgr := siam.NewSiamAuthManager()
+
+	err = authMgr.Authenticate(req.NIM, req.Password)
+
+	if err != nil {
+		return err 
+	}
+
+	hashed, err := util.HashPassword(req.NewPassword) 
+	if err != nil {
+		return err 
+	}
+
+	err = repoClient.UpdateUser(ctx, &entity.User{
+		NIM: req.NIM,
+		Username: req.Username,
+		Password: hashed,
+		ForgotPasswordAt: sql.NullTime{Time: time.Now(), Valid: true},
+	})
+
+	if err != nil {
+		return err 
+	}
+
+
+	return nil 
+}

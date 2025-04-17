@@ -7,9 +7,21 @@ type UserRegisterRequest struct {
 	NewPassword string `json:"newPassword" validate:"required,alphanum,min=6,max=25"`
 }
 
+type ForgotPasswordRequest struct {
+	NIM         string `json:"nim" validate:"required,max=16"`
+	Password    string `json:"password" validate:"required"`
+	Username    string `json:"username" validate:"required"`
+	NewPassword string `json:"newPassword" validate:"required,alphanum,min=6,max=25"`
+}
+
 type UserLoginRequest struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
+}
+
+type FetchUserParams struct {
+	Username string
+	NIM      string
 }
 
 type FetchUserResponse struct {

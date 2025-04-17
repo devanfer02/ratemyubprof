@@ -20,4 +20,6 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/env.json .
 COPY --from=builder /app/internal/logs /app/internal/logs
 
+ENV TZ=Asia/Jakarta
+
 ENTRYPOINT [ "/app/main" ]
