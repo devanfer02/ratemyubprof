@@ -49,7 +49,6 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 
 func (s *userService) ForgotPassword(ctx context.Context, req *dto.ForgotPasswordRequest) error {
 	repoClient, err := s.userRepo.NewClient(false)
-
 	if err != nil {
 		return err 
 	}

@@ -90,16 +90,19 @@ func (u *userRepositoryImplPostgre) UpdateUser(ctx context.Context, user *entity
 	qb := goqu.Update(userTableName).
 		Set(goqu.Record{
 			"password": user.Password,
+			"forgot_password_at": user.ForgotPasswordAt,
 		}). 
-		Where(goqu.I("nim").Eq(user.NIM)). 
-		Prepared(true). 
-		SetDialect(goqu.GetDialect("postgres"))
+		Where(goqu.C("nim").Eq(user.NIM)). 
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
 
 	query, args, err := qb.ToSQL()
 
 	if err != nil {
 		return apperr.NewFromError(err, "Failed to update user").SetLocation()
 	}
+
+	query = u.conn.Rebind(query)	
 
 	res, err := u.conn.ExecContext(ctx, query, args...)
 	if err != nil {
