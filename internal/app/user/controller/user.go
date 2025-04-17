@@ -81,3 +81,39 @@ func (c *UserController) FetchReviews(ectx echo.Context) error {
 		return ectx.JSON(http.StatusOK, resp)
 	}
 }
+
+func (c *UserController) ResetPassowrd(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		req dto.ForgotPasswordRequest
+		resp *response.Response
+	)
+
+	if err := ectx.Bind(&req); err != nil {
+		return err 
+	}
+
+	if err := c.validator.Struct(req); err != nil {
+		return err 
+	}
+
+	err := c.userSvc.ForgotPassword(ctx, &req)
+	if err != nil {
+		return err 
+	}
+
+	resp = response.New(
+		"Successfully reset password",
+		nil,
+		nil,
+	)
+
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusOK, resp)
+	}
+}

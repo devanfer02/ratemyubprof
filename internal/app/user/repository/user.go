@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
+	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/doug-martin/goqu/v9"
@@ -52,14 +53,21 @@ func (u *userRepositoryImplPostgre) InsertUser(ctx context.Context, user *entity
 	return nil
 }
 
-func (u *userRepositoryImplPostgre) FetchUserByUsername(ctx context.Context, username string) (*entity.User, error) {
+func (u *userRepositoryImplPostgre) FetchUserByParams(ctx context.Context, params *dto.FetchUserParams) (entity.User, error) {
 	qb := goqu.Select("*").
-		From(userTableName).
-		Where(goqu.C("username").Eq(username))
+		From(userTableName)
+
+	if params.Username != "" {
+		qb = qb.Where(goqu.I("username").Eq(params.Username))
+	}
+	
+	if params.NIM != "" {
+		qb = qb.Where(goqu.I("nim").Eq(params.NIM))
+	}
 
 	query, args, err := qb.SetDialect(goqu.GetDialect("postgres")).ToSQL()
 	if err != nil {
-		return nil, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
+		return entity.User{}, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
 	}
 
 	query = u.conn.Rebind(query)
@@ -68,11 +76,51 @@ func (u *userRepositoryImplPostgre) FetchUserByUsername(ctx context.Context, use
 	err = u.conn.QueryRowxContext(ctx, query, args...).StructScan(&user)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, contracts.ErrUserNotExists
+			return entity.User{}, contracts.ErrUserNotExists
 		}
 
-		return nil, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
+		return entity.User{}, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
 	}
 
-	return &user, nil
+	return user, nil
+}
+
+
+func (u *userRepositoryImplPostgre) UpdateUser(ctx context.Context, user *entity.User) error {
+	qb := goqu.Update(userTableName).
+		Set(goqu.Record{
+			"password": user.Password,
+			"forgot_password_at": user.ForgotPasswordAt,
+		}). 
+		Where(goqu.C("nim").Eq(user.NIM)). 
+		SetDialect(goqu.GetDialect("postgres")).
+		Prepared(true)
+
+	query, args, err := qb.ToSQL()
+
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to update user").SetLocation()
+	}
+
+	query = u.conn.Rebind(query)	
+
+	res, err := u.conn.ExecContext(ctx, query, args...)
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to update user").SetLocation()
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return apperr.NewFromError(err, "Failed to update user").SetLocation()
+	}
+
+	if rows == 0 {
+		return contracts.ErrUserNotExists
+	}
+
+	if rows > 1 {
+		return contracts.ErrWeirdUpdate
+	}
+	
+	return nil 
 }

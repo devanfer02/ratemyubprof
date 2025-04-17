@@ -5,6 +5,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/app/user/repository"
+	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/devanfer02/ratemyubprof/tests/app/fixtures"
 	"github.com/jmoiron/sqlx"
@@ -116,26 +117,26 @@ func TestInsertUser(t *testing.T) {
 	}
 }
 
-func TestFetchUserByUsername(t *testing.T) {
+func TestFetchUserByParams(t *testing.T) {
 	tests := []struct {
 		name       string
 		wantErr    error 
-		want       *entity.User
+		want       entity.User
 		beforeTest func(
-			user *entity.User,
+			user entity.User,
 			db *sqlx.DB,
 		) error
 	}{
 		{
 			name:    "When fetching user with existing username, it should return no error",
 			wantErr: nil,
-			want: &entity.User{
+			want: entity.User{
 				ID: "myid",
 				NIM: "nim",
 				Username: "dia",
 				Password: "passwordwkwk",
 			},
-			beforeTest: func(user *entity.User, db *sqlx.DB) error {
+			beforeTest: func(user entity.User, db *sqlx.DB) error {
 				query := `INSERT INTO users (id, nim, username, password) VALUES (:id, :nim, :username, :password)`
 				_, err := db.NamedExec(query, user)
 				return err
@@ -144,7 +145,7 @@ func TestFetchUserByUsername(t *testing.T) {
 		{
 			name:    "When fetching user with non-existing username, it should return error item does not exists",
 			wantErr: contracts.ErrUserNotExists,
-			want: &entity.User{
+			want: entity.User{
 				Username: "dia",
 			},
 		},
@@ -170,7 +171,7 @@ func TestFetchUserByUsername(t *testing.T) {
 				}
 			}
 
-			user, err := client.FetchUserByUsername(t.Context(), test.want.Username)
+			user, err := client.FetchUserByParams(t.Context(), &dto.FetchUserParams{Username: test.want.Username})
 
 			if test.wantErr != nil {
 				assert.NotNil(t, err, "Expecting error to be thrown")
