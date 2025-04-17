@@ -90,7 +90,7 @@ func (h *httpServer) MountHandlers() {
 	profRepo := prof_repo.NewProfessorRepository(h.Database)
 	reactionRepo := reaction_repo.NewReviewReactionRepository(h.Database)
 
-	profSvc := prof_svc.NewProfessorService(profRepo)
+	profSvc := prof_svc.NewProfessorService(profRepo, reviewRepo)
 	userSvc := user_svc.NewUserService(userRepo, jwtHandler)
 	authSvc := auth_svc.NewAuthService(userRepo, jwtHandler)
 	reviewSvc := review_svc.NewReviewService(reviewRepo)

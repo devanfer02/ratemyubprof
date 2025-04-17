@@ -14,4 +14,5 @@ type ReviewRepositoryProvider interface {
 type ReviewRepository interface {
 	FetchReviewsByParams(ctx context.Context, params *dto.FetchReviewParams, pageQuery *dto.PaginationQuery) ([]entity.ReviewWithRelations, error)
 	GetReviewsItemsByParams(ctx context.Context, params *dto.FetchReviewParams) (uint64, error)
+	FetchRatingDistributionByProfId(ctx context.Context, profId string, column entity.RatingDistributionCol) (entity.RatingDistribution, error)
 }
