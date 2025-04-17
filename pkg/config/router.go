@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	FetchLimiter = middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(2000)))
-	PostLimiter  = middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(200)))
+	FetchLimiter = middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(5000)))
+	PostLimiter  = middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(500)))
 )
 
 func NewRouter() *echo.Echo {

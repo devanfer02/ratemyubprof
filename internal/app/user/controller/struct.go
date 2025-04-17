@@ -36,5 +36,5 @@ func (c *UserController) Mount(r *echo.Group) {
 	userR.GET("/:userId/reviews", c.FetchReviews)
 	userR.GET("/reviews", c.FetchReviews, c.mdlwr.Authenticate())
 	userR.POST("/register", c.Register, config.PostLimiter)	
-	userR.PATCH("/password", c.ResetPassowrd)
+	userR.PATCH("/password", c.ResetPassowrd, config.PostLimiter)
 }
