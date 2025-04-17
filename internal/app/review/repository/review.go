@@ -126,7 +126,7 @@ func (p *reviewRepositoryImplPostgre) FetchRatingDistributionByProfId(ctx contex
 		)
 	}
 
-	qb = qb.GroupBy(goqu.I("r.user_id"), goqu.I("r.prof_id"))
+	qb = qb.GroupBy(goqu.I("r.prof_id"))
 
 	qb = qb.
 		Where(goqu.I("r.prof_id").Eq(profId)).
@@ -139,6 +139,7 @@ func (p *reviewRepositoryImplPostgre) FetchRatingDistributionByProfId(ctx contex
 	}
 
 	query = p.conn.Rebind(query)
+	fmt.Println("QUERY: ", query)
 
 	var res entity.RatingDistribution
 	err = p.conn.QueryRowxContext(ctx, query, args...).StructScan(&res)
