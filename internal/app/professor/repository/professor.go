@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/dto"
@@ -49,7 +48,6 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 		return nil, apperr.NewFromError(err, "Failed to fetch all professors").SetLocation()
 	}
 	
-	log.Println("qb", query)
 	query = p.conn.Rebind(query)
 	
 	rows, err := p.conn.QueryxContext(ctx, query, args...)
