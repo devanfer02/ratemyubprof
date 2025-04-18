@@ -35,7 +35,7 @@ func (c *ProfessorController) Mount(r *echo.Group) {
 	profR.GET("", c.FetchAll, config.FetchLimiter)
 	profR.GET("/:id", c.FetchByID, config.FetchLimiter)
 
-	profR.GET("/:profId/reviews", c.FetchReviews )
+	profR.GET("/:profId/reviews", c.FetchReviews, c.mdlwr.OptionalAuth())
 	profR.POST("/:id/reviews", c.CreateReview, c.mdlwr.Authenticate(), config.PostLimiter)
 	profR.PUT("/:id/reviews", c.UpdateReview, c.mdlwr.Authenticate(), config.PostLimiter)
 	profR.DELETE("/:profId/reviews", c.DeleteReview, c.mdlwr.Authenticate(), config.PostLimiter)

@@ -19,7 +19,7 @@ func ErrLogger(logger *zap.Logger) echo.MiddlewareFunc {
 				}
 
 				if appErr, ok := err.(*apperr.AppError); ok {
-					logger.Error("Error",
+					logger.Error("[RateMyUbProf] Error",
 						zap.String("Path", c.Path()),
 						zap.String("Method", c.Request().Method),
 						zap.Any("Query Params", c.QueryParams()),
@@ -30,7 +30,7 @@ func ErrLogger(logger *zap.Logger) echo.MiddlewareFunc {
 						zap.Int("Line", appErr.Line),
 					)
 				} else {
-					logger.Error("Error",
+					logger.Error("[RateMyUbProf] Error",
 						zap.String("Path", c.Path()),
 						zap.String("Method", c.Request().Method),
 						zap.Any("Query Params", c.QueryParams()),

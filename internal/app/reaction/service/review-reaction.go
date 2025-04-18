@@ -6,6 +6,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/internal/app/reaction/contracts"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
+	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/devanfer02/ratemyubprof/internal/infra/rabbitmq"
 	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
@@ -23,13 +24,17 @@ func (s *reviewReactionService) PublishReaction(ctx context.Context, queueType r
 }
 
 func (s *reviewReactionService) CreateReaction(ctx context.Context, req *dto.ReviewReactionRequest) error {
-	// Spawn context with timeout
 	ctx, cancel := context.WithTimeout(ctx, 10 * time.Second)
 	defer cancel()
 
-	// Insert Creation to Database
 	repoClient, err := s.reactionRepo.NewClient(false)
 	if err != nil {
+		return err 
+	}
+
+	err = repoClient.DeleteReaction(ctx, &entity.ReviewReaction{UserID: req.UserID, ReviewID: req.ReviewID})
+
+	if err != nil && err != contracts.ErrItemNotFound {
 		return err 
 	}
 
@@ -50,11 +55,9 @@ func (s *reviewReactionService) CreateReaction(ctx context.Context, req *dto.Rev
 }
 
 func (s *reviewReactionService) DeleteReaction(ctx context.Context, req *dto.ReviewReactionRequest) error {
-	// Spawn context with timeout
 	ctx, cancel := context.WithTimeout(ctx, 10 * time.Second)
 	defer cancel()
 
-	// Insert Creation to Database
 	repoClient, err := s.reactionRepo.NewClient(false)
 	if err != nil {
 		return err 

@@ -6,7 +6,7 @@ type QueueType string
 
 const (
 	ReactionReviewCreateQueue QueueType = "review-reactions.create"
-	ReactionReviewDeleteQueue QueueType = "review-reactions.create"
+	ReactionReviewDeleteQueue QueueType = "review-reactions.delete"
 )
 
 func (q QueueType) String() string {

@@ -5,3 +5,8 @@ type ReviewReactionRequest struct {
 	UserID   string 
 	Type     string   `json:"type" validate:"required,reactionType"`
 }
+
+type FetchReactionParams struct {
+	ReviewID string 
+	UserID string
+}

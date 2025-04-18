@@ -23,6 +23,7 @@ type ReviewWithRelations struct {
 	Review
 	User           User      `db:"user"`
 	Professor      Professor `db:"professor"`
+	IsLiked        int      `db:"is_liked"`
 	LikeCounter    int       `db:"like_counter"`
 	DislikeCounter int       `db:"dislike_counter"`
 }

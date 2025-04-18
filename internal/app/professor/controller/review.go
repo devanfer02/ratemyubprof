@@ -23,6 +23,9 @@ func (c *ProfessorController) FetchReviews(ectx echo.Context) error {
 	ectx.Bind(&pageQuery)
 	pageQuery.SetDefaultValue()
 
+	userId, _ := ectx.Get("userId").(string)
+	param.SignedUser = userId
+
 	res, meta, err := c.reviewSvc.FetchReviewsByParams(ctx, &param, &pageQuery)
 	if err != nil {
 		return err 

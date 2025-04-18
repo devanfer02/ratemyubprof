@@ -33,3 +33,29 @@ func (m *Middleware) Authenticate() echo.MiddlewareFunc {
 		}
 	}	
 }
+
+func (m *Middleware) OptionalAuth() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			header := c.Request().Header.Get("Authorization")
+
+			if header == "" {
+				return next(c)
+			}
+
+			parts := strings.Split(header, " ")
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				return next(c)
+			}
+
+			userID, err := m.jwtHandler.ValidateToken(parts[1], config.AccessToken)
+			if err != nil {
+				return next(c)
+			}
+
+			c.Set("userId", userID)
+
+			return next(c)
+		}
+	}
+}

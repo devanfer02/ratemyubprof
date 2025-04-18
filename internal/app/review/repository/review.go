@@ -28,6 +28,11 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 			goqu.I("p.faculty").As(goqu.C("professor.faculty")),
 			goqu.I("p.major").As(goqu.C("professor.major")),
 			goqu.I("p.profile_img_link").As(goqu.C("professor.profile_img_link")),
+			goqu.MAX(
+				goqu.Case(). 
+				When(goqu.I("rr.user_id").Eq(params.SignedUser), goqu.I("rr.reaction_type")). 
+				Else(0),
+			).As("is_liked"),
 			goqu.COUNT(
 				goqu.Case().
 					When(goqu.I("rr.reaction_type").Eq(entity.LikeReactionType), 1). 
@@ -39,7 +44,11 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 					Else(nil),
 			).As("dislike_counter"),
 		).
-		GroupBy(goqu.I("r.id"), goqu.I("u.id"), goqu.I("p.id")).
+		GroupBy(
+			goqu.I("r.id"), 
+			goqu.I("u.id"), 
+			goqu.I("p.id"),
+		).
 		From(goqu.T(reviewTableName).As("r")).
 		Join(
 			goqu.T(userTableName).As("u"),
@@ -52,7 +61,7 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 		LeftJoin(
 			goqu.T(reactionTableName).As("rr"),
 			goqu.On(goqu.I("r.id").Eq(goqu.I("rr.review_id"))),
-		). 
+		).
 		Order(goqu.I("r.created_at").Desc())
 
 	if params.ProfId != "" {
@@ -73,7 +82,6 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 	}
 
 	query = p.conn.Rebind(query)
-
 
 	rows, err := p.conn.QueryxContext(ctx, query, args...)
 	if err != nil {
@@ -100,6 +108,7 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 			&review.Professor.Faculty,
 			&review.Professor.Major,
 			&review.Professor.ProfileImgLink,
+			&review.IsLiked,
 			&review.LikeCounter,
 			&review.DislikeCounter,
 		)
@@ -139,7 +148,6 @@ func (p *reviewRepositoryImplPostgre) FetchRatingDistributionByProfId(ctx contex
 	}
 
 	query = p.conn.Rebind(query)
-	fmt.Println("QUERY: ", query)
 
 	var res entity.RatingDistribution
 	err = p.conn.QueryRowxContext(ctx, query, args...).StructScan(&res)

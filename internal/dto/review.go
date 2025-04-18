@@ -10,6 +10,7 @@ type FetchReviewResponse struct {
 	DiffRate     float32                `json:"difficultyRating"`
 	FriendlyRate float32                `json:"friendlyRating"`
 	CreatedAt    string                 `json:"createdAt"`
+	IsLiked      int                    `json:"isLiked"`
 	Like         int                    `json:"like"`
 	Dislike      int                    `json:"dislike"`
 	User         FetchUserResponse      `json:"user"`
@@ -17,8 +18,9 @@ type FetchReviewResponse struct {
 }
 
 type FetchReviewParams struct {
-	ProfId string `param:"profId"`
-	UserId string `param:"userId"`
+	ProfId     string `param:"profId"`
+	UserId     string `param:"userId"`
+	SignedUser string
 }
 
 type ProfessorRatingDistribution struct {
