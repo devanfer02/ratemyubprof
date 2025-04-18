@@ -34,6 +34,7 @@ func FormatReviewEntityToDto(review *entity.ReviewWithRelations) dto.FetchReview
 		FriendlyRate: review.FriendlyRate,
 		Like:         review.LikeCounter,
 		Dislike:      review.DislikeCounter,
+		CreatedAt:    review.CreatedAt.String(),
 		Professor:    FormatProfessorEntityToDto(review.Professor),
 		User:         FormatUserEntityToDto(&review.User),
 	}

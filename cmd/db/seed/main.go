@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	database "github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
@@ -32,11 +31,11 @@ func main() {
 	}()
 	go func(){
 		defer wg.Done()
-		seedReviews(100000)
+		seedReviews(200000)
 	}()
 	go func(){
 		defer wg.Done()
-		seedReviewReactions(100000)
+		seedReviewReactions(200000)
 	}()
 	
 
@@ -93,10 +92,10 @@ func seedReviews(count int) {
 			diffRating := gofakeit.Float64Range(1, 5)
 			friendRating := gofakeit.Float64Range(1, 5)
 
-			_, err := db.Exec(`INSERT INTO reviews (id, user_id, prof_id, comment, difficulty_rating, friendly_rating, created_at)
+			_, err := db.Exec(`INSERT INTO reviews (id, user_id, prof_id, comment, difficulty_rating, friendly_rating)
 				VALUES ($1, $2, $3, $4, $5, $6, $7)
 				ON CONFLICT DO NOTHING`,
-				gofakeit.UUID(), userID, profID, comment, diffRating, friendRating, time.Now())
+				gofakeit.UUID(), userID, profID, comment, diffRating, friendRating)
 
 			if err != nil {
 				log.Println("insert review error:", err)

@@ -52,7 +52,8 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 		LeftJoin(
 			goqu.T(reactionTableName).As("rr"),
 			goqu.On(goqu.I("r.id").Eq(goqu.I("rr.review_id"))),
-		)	
+		). 
+		Order(goqu.I("r.created_at").Desc())
 
 	if params.ProfId != "" {
 		qb = qb.Where(goqu.I("p.id").Eq(params.ProfId))
