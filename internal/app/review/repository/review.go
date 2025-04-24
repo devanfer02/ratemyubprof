@@ -72,6 +72,10 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 		qb = qb.Where(goqu.I("u.id").Eq(params.UserId))
 	}
 
+	if params.ID != "" {
+		qb = qb.Where(goqu.I("r.id").Eq(params.ID))
+	}
+
 	if pageQuery.Page != 0 && pageQuery.Limit != 0{
 		qb = qb.Offset((pageQuery.Page - 1) * pageQuery.Limit).Limit(pageQuery.Limit)
 	}

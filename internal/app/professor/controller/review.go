@@ -25,6 +25,7 @@ func (c *ProfessorController) FetchReviews(ectx echo.Context) error {
 
 	userId, _ := ectx.Get("userId").(string)
 	param.SignedUser = userId
+	param.ID = ectx.QueryParam("reviewId")
 
 	res, meta, err := c.reviewSvc.FetchReviewsByParams(ctx, &param, &pageQuery)
 	if err != nil {

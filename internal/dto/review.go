@@ -18,6 +18,7 @@ type FetchReviewResponse struct {
 }
 
 type FetchReviewParams struct {
+	ID         string  
 	ProfId     string `param:"profId"`
 	UserId     string `param:"userId"`
 	SignedUser string
