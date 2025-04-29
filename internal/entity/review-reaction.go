@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 type ReactionType uint
 
 const (
@@ -22,5 +24,5 @@ type ReviewReaction struct {
 	UserID    string `db:"user_id"`
 	ReviewID  string `db:"review_id"`
 	Type      ReactionType   `db:"reaction_type"`
-	CreatedAt string `db:"created_at"`
+	CreatedAt time.Time `db:"created_at"`
 }

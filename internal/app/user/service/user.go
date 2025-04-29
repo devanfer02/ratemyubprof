@@ -38,6 +38,7 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 		NIM: usr.NIM,
 		Username: usr.Username,
 		Password: hashed,
+		CreatedAt: time.Now(),
 	})
 
 	if err != nil {

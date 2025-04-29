@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"strings"
+	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
@@ -17,6 +18,7 @@ func FormatProfessorStaticToEntity(professors []dto.ProfessorStatic) []entity.Pr
 			Faculty:        professor.Fakultas,
 			Major:          professor.Prodi,
 			ProfileImgLink: professor.ImgLink,
+			CreatedAt:      time.Now(),
 		})
 	}
 	return professorsEntity

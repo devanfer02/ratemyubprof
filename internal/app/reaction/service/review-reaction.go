@@ -39,6 +39,7 @@ func (s *reviewReactionService) CreateReaction(ctx context.Context, req *dto.Rev
 	}
 
 	entity := formatter.FormatReactionToEntity(req)
+	entity.CreatedAt = time.Now()
 	err = repoClient.CreateReaction(ctx, entity)
 
 	if err != nil {

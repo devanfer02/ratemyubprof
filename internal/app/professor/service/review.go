@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
@@ -16,6 +17,7 @@ func (s *professorService) CreateReview(ctx context.Context, param *dto.Professo
 
 	entity := formatter.FormatReviewToEntity(param)
 	entity.ID = ulid.Make().String()
+	entity.CreatedAt = time.Now()
 	err = repoClient.InsertProfessorReview(ctx, &entity)
 
 	if err != nil {

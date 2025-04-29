@@ -4,5 +4,5 @@ CREATE TABLE users (
     username VARCHAR(200) CONSTRAINT users_username_unique UNIQUE NOT NULL,
     password VARCHAR(250) NOT NULL,
     forgot_password_at TIMESTAMP DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT NOW()
 );
