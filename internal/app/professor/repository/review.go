@@ -39,11 +39,17 @@ func (p *professorRepositoryImplPostgre) InsertProfessorReview(ctx context.Conte
 func (p *professorRepositoryImplPostgre) UpdateProfessorReview(ctx context.Context, review *entity.Review) error {
 	qb := goqu. 
 		Update(reviewTableName). 
-		Set(review). 
+		Set(
+			goqu.Record{
+				"difficulty_rating": review.DiffRate,
+				"friendly_rating": review.FriendlyRate,
+				"comment": review.Comment,
+			},
+		). 
 		Where(
 			goqu.And(
-				goqu.I("reviews.prof_id").Eq(review.ProfessorID), 
-				goqu.I("reviews.user_id").Eq(review.UserID),
+				goqu.I("prof_id").Eq(review.ProfessorID), 
+				goqu.I("user_id").Eq(review.UserID),
 			),
 		)
 
@@ -56,12 +62,12 @@ func (p *professorRepositoryImplPostgre) UpdateProfessorReview(ctx context.Conte
 
 	res, err := p.conn.ExecContext(ctx, query, args...)
 	if err != nil {
-		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()	
+		return apperr.NewFromError(err, "Failed to update review professor").SetLocation()	
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
-		return apperr.NewFromError(err, "Failed to delete review professor").SetLocation()	
+		return apperr.NewFromError(err, "Failed to update review professor").SetLocation()	
 	}
 
 	if rows == 0 {
