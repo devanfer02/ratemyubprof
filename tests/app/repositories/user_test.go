@@ -7,7 +7,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/app/user/repository"
 	"github.com/devanfer02/ratemyubprof/internal/dto"
 	"github.com/devanfer02/ratemyubprof/internal/entity"
-	"github.com/devanfer02/ratemyubprof/tests/app/fixtures"
+	"github.com/devanfer02/ratemyubprof/tests/fixtures"
 	"github.com/jmoiron/sqlx"
 	"github.com/oklog/ulid/v2"
 	"github.com/stretchr/testify/assert"

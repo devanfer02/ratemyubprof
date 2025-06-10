@@ -22,9 +22,11 @@ func NewLogger(env *env.Env) *zap.Logger {
 		panic("Invalid logger type")
 	}
 
-	cfg.OutputPaths = []string{
-		"stdout",
-		fmt.Sprintf("internal/logs/app-%s.log", env.Logger.Type),
+	if env.Logger.WithFile {
+		cfg.OutputPaths = []string{
+			"stdout",
+			fmt.Sprintf("internal/logs/app-%s.log", env.Logger.Type),
+		}
 	}
 
 	logger, err := cfg.Build()

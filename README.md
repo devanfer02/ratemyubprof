@@ -10,6 +10,19 @@ This application is using [Go v1.24](https://tip.golang.org/doc/go1.24), [Postgr
 
 For client side repository, you can find it right in [this github repository](https://github.com/devanfer02/ratemyubprof-client)
 
+## Backend Architecture
+
+This golang backend repository use `Clean Architecture` for these reasons. 
+
+1. Clear separation of concerns.   
+    Every layer in this repository has their own responsibility from controller (REST API), service (Business Logic) and repository (Database Interaction) so it's easier to develop and test individually
+
+2. Independent of Framework/Database.  
+    The application will work as expected even with different HTTP Framework, ORM Framework or Database since the business logic are isolated from these external concerns through dependency inversion.
+
+3. Enhanced Testability.   
+    Business logic can be tested in isolation using mock implementations, enabling fast unit tests without spinning up databases or web servers.
+
 ## Development Setup
 
 You can use [devcontainer](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers) to setup project development, just make sure you have installed docker already! Some commands that need root access like `docker` cli and running unit test (use `testcontainer-go`) need root access in devcontainer so make sure you run it with sudo if needed. 

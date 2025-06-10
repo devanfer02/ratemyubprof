@@ -112,7 +112,7 @@ func (h *httpServer) MountHandlers() {
 	h.Services.reactionSvc = reactionSvc
 }
 
-func (h *httpServer) Start() {
+func (h *httpServer) Bootstrap() {
 	h.Router.Use(middleware.ErrLogger(h.Logger))
 	h.Router.Use(middleware.RequestLogger(h.Logger))
 	h.Router.Use(middleware.ApiKey(h.Env))
@@ -124,6 +124,10 @@ func (h *httpServer) Start() {
 	for _, handler := range h.Handlers {
 		handler.Mount(h.Router.Group("/api/v1"))
 	}
+}
+
+func (h *httpServer) Start() {
+	h.Bootstrap()	
 
 	if h.Env.App.Env == "development" {
 		h.logRoutes()
@@ -210,4 +214,8 @@ func (h *httpServer) logRoutes() {
 		h.Logger.Info(route.Method + " " + route.Path)
 	}
 	h.Logger.Info("-------------------------------------------")
+}
+
+func (h *httpServer) GetRouter() any {
+	return h.Router
 }

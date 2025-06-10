@@ -24,14 +24,15 @@ type Env struct {
 	} `json:"app"`
 
 	RabbitMQ struct {
-		Host	 string `json:"host"`
-		Port	 int    `json:"port"`
-		User	 string `json:"user"`
+		Host     string `json:"host"`
+		Port     int    `json:"port"`
+		User     string `json:"user"`
 		Password string `json:"password"`
 	} `json:"rabbitmq"`
 
 	Logger struct {
-		Type string `json:"type"`
+		Type     string `json:"type"`
+		WithFile bool   `json:"withFile"`
 	} `json:"logger"`
 
 	Jwt struct {
@@ -46,6 +47,22 @@ func NewEnv() *Env {
 	env := Env{}
 
 	viper.SetConfigFile("env.json")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	if err := viper.Unmarshal(&env); err != nil {
+		panic(err)
+	}
+
+	return &env
+}
+
+func NewEnvFromFile(filepath string) *Env {
+	env := Env{}
+
+	viper.SetConfigFile(filepath)
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)

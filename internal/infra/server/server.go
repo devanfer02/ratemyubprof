@@ -4,6 +4,10 @@ type Server interface {
 	// Start starts the server and listens for incoming requests
 	Start()	
 
+
+	// Bootstrap initializes the server components 
+	Bootstrap()
+
 	// GracefullyShutdown gracefully shuts down the server on interrupt
 	GracefullyShutdown()
 
@@ -12,4 +16,7 @@ type Server interface {
 
 	// MountWorkers mounts all the workers or background jobs
 	MountWorkers()
+
+	// Get Router returns the HTTP router
+	GetRouter() any
 }
