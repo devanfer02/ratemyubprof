@@ -78,6 +78,12 @@ kubectl apply -f deploy/kube
 
 2. Access the application via the Kubernetes service.
 
+## API Documentation
+
+To view or access API Documentation, you can look up with below link
+
+Postman Documentation : [API Doc](https://documenter.getpostman.com/view/27789368/2sB2x5FrnC)
+
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request.
