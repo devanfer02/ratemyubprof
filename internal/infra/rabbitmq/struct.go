@@ -56,6 +56,18 @@ func NewRabbitMQ(env *env.Env, logger *zap.Logger) *RabbitMQ {
 	return rabbitMQ
 }
 
+func NewRabbitMQFromUrl(url string, logger *zap.Logger) *RabbitMQ {
+	conn, err := amqp091.Dial(url)
+	if err != nil {
+		panic(err)
+	}
+
+	return &RabbitMQ{
+		conn: conn,
+		logger: logger,
+	}
+}
+
 func (r *RabbitMQ) Close() error {
 	return r.conn.Close()
 }

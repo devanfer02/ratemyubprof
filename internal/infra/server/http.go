@@ -81,6 +81,25 @@ func NewHttpServer() Server {
 	}
 }
 
+func NewHttpServerWithConfig(cfg CustomServerConfig) Server {
+	env := env.NewEnv()
+	logger := logger.NewLogger(env)
+	router := config.NewRouter()
+	validator := config.NewValidator()
+	rabbitMq := rabbitmq.NewRabbitMQFromUrl(cfg.MQURL, logger)
+
+	return &httpServer{
+		Env:       env,
+		Logger:    logger,
+		Router:    router,
+		Database:  cfg.DB,
+		Validator: validator,
+		RabbitMQ:  rabbitMq,
+		Handlers:  make([]httpHandler, 0),
+		Services:  servicesRegistry{},
+	}
+}
+
 func (h *httpServer) MountHandlers() {
 	jwtHandler := config.NewJwtHandler(h.Env)
 	middleware := middleware.NewMiddleware(jwtHandler)

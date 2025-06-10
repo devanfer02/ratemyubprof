@@ -8,13 +8,27 @@ import (
 
 	// "github.com/bytedance/sonic"
 	"github.com/devanfer02/ratemyubprof/internal/infra/server"
+	"github.com/devanfer02/ratemyubprof/tests/fixtures"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAuthLoginFlow(t *testing.T) {
 	var (
-		srv = server.NewHttpServer()
+		mqUrl, cleanUpMq = fixtures.NewRabbitMq()
+		db, cleanUpDb    = fixtures.NewDB()
+	)
+
+	defer func() {
+		cleanUpDb()
+		cleanUpMq()
+	}()
+
+	var (
+		srv = server.NewHttpServerWithConfig(server.CustomServerConfig{
+			MQURL: mqUrl,
+			DB: db,
+		})
 		loginPayload = `{"username": "testuser", "password": "testpass"}`
 		registerPayload = `{"nim": "225150200111", "username": "testuser", "password": "testpass", "newPassword": "testpass"}`
 	)
@@ -34,7 +48,7 @@ func TestAuthLoginFlow(t *testing.T) {
 	e.ServeHTTP(rec, req)
 
 	// Assert status code
-	t.Log("response:", rec.Body.String())
+	t.Log("Login Response Body:", rec.Body.String())
 	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	// Test user login 
@@ -47,8 +61,7 @@ func TestAuthLoginFlow(t *testing.T) {
 	e.ServeHTTP(rec, req)
 
 	// Assert status code
+	t.Log("Register Response Body:", rec.Body.String())
 	assert.Equal(t, http.StatusOK, rec.Code)
-
-	t.Log("response:", rec.Body.String())
 }	
 

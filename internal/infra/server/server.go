@@ -1,11 +1,12 @@
 package server
 
+import "github.com/jmoiron/sqlx"
+
 type Server interface {
 	// Start starts the server and listens for incoming requests
-	Start()	
+	Start()
 
-
-	// Bootstrap initializes the server components 
+	// Bootstrap initializes the server components
 	Bootstrap()
 
 	// GracefullyShutdown gracefully shuts down the server on interrupt
@@ -19,4 +20,9 @@ type Server interface {
 
 	// Get Router returns the HTTP router
 	GetRouter() any
+}
+
+type CustomServerConfig struct {
+	DB    *sqlx.DB
+	MQURL string
 }
