@@ -15,13 +15,13 @@ import (
 )
 
 func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterRequest) error {
-	// authMgr := siam.NewSiamAuthManager()
+	authMgr := siam.NewSiamAuthManager()
 
-	// err := authMgr.Authenticate(usr.NIM, usr.Password)
+	err := authMgr.Authenticate(usr.NIM, usr.Password)
 
-	// if err != nil {
-	// 	return err 
-	// }
+	if err != nil {
+		return err 
+	}
 
 	repoClient, err := s.userRepo.NewClient(false)
 	if err != nil {
