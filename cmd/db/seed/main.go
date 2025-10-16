@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"sync"
+	"strings"
 
 	"github.com/brianvoe/gofakeit/v6"
 	database "github.com/devanfer02/ratemyubprof/internal/infra/database/postgres"
@@ -16,148 +16,157 @@ import (
 var db *sqlx.DB
 
 func main() {
-	var err error
 	env := env.NewEnv()
 	db = database.NewDatabase(env)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
-	var wg sync.WaitGroup
-	wg.Add(3)
-	go func(){
-		defer wg.Done()
-		seedUsers(50000)
-	}()
-	go func(){
-		defer wg.Done()
-		seedReviews(200000)
-	}()
-	go func(){
-		defer wg.Done()
-		seedReviewReactions(200000)
-	}()
-	
-
-	wg.Wait()
-	
+	seedUsers(1000)
+	seedReviews(10000)
+	seedReviewReactions(90000)
 }
 
 func seedUsers(count int) {
-	for i := 0; i < count; i++ {
-		id := gofakeit.UUID()
-		nim := gofakeit.DigitN(8)
-		username := gofakeit.Username()
-		password := gofakeit.Password(true, true, true, true, false, 12)
-
-		_, err := db.Exec(`INSERT INTO users (id, nim, username, password) 
-			VALUES ($1, $2, $3, $4)`,
-			id, nim, username, password)
-		if err != nil {
-			log.Println("insert user error:", err)
+	batchSize := 100
+	for i := 0; i < count; i += batchSize {
+		valueStrings := make([]string, 0, batchSize)
+		valueArgs := make([]interface{}, 0, batchSize*4)
+		end := i + batchSize
+		if end > count {
+			end = count
 		}
 
-		log.Println("Inserted user:", i+1)
+		for j := i; j < end; j++ {
+			p1 := len(valueArgs) + 1
+			p2 := p1 + 1
+			p3 := p1 + 2
+			p4 := p1 + 3
+			valueStrings = append(valueStrings, fmt.Sprintf("($%d, $%d, $%d, $%d)", p1, p2, p3, p4))
+			valueArgs = append(valueArgs, gofakeit.UUID(), gofakeit.DigitN(8), gofakeit.Username(), gofakeit.Password(true, true, true, true, false, 12))
+		}
+
+		stmt := fmt.Sprintf("INSERT INTO users (id, nim, username, password) VALUES %s", strings.Join(valueStrings, ","))
+		_, err := db.Exec(stmt, valueArgs...)
+		if err != nil {
+			log.Printf("insert user error on batch starting at %d: %v\n", i, err)
+		}
+		log.Printf("Processed %d users\n", end)
 	}
 	fmt.Println("Users seeded!")
 }
 
 func seedReviews(count int) {
 	var userIDs, profIDs []string
-	_ = db.Select(&userIDs, "SELECT id FROM users")
-	_ = db.Select(&profIDs, "SELECT id FROM professors")
+	if err := db.Select(&userIDs, "SELECT id FROM users"); err != nil {
+		log.Fatalf("error fetching users: %v", err)
+	}
+	if err := db.Select(&profIDs, "SELECT id FROM professors"); err != nil {
+		log.Fatalf("error fetching professors: %v", err)
+	}
 
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	usedPairs := make(map[string]bool)
+	if len(userIDs) == 0 || len(profIDs) == 0 {
+		log.Println("No users or professors to create reviews for.")
+		return
+	}
 
-	for i := 0; i < count; i++ {
-		wg.Add(1)
+	batchSize := 100
+	for i := 0; i < count; i += batchSize {
+		valueStrings := make([]string, 0, batchSize)
+		valueArgs := make([]interface{}, 0, batchSize*6)
+		end := i + batchSize
+		if end > count {
+			end = count
+		}
 
-		go func() {
-			defer wg.Done()
+		usedPairsInBatch := make(map[string]bool)
+
+		for j := i; j < end; j++ {
 			userID := userIDs[gofakeit.Number(0, len(userIDs)-1)]
 			profID := profIDs[gofakeit.Number(0, len(profIDs)-1)]
 			key := userID + "-" + profID
 
-			mu.Lock()
-			if usedPairs[key] {
-				mu.Unlock()
-				return
+			if usedPairsInBatch[key] {
+				continue
 			}
-			usedPairs[key] = true
-			mu.Unlock()
+			usedPairsInBatch[key] = true
+			
+			p1 := len(valueArgs) + 1
+			p2 := p1 + 1
+			p3 := p1 + 2
+			p4 := p1 + 3
+			p5 := p1 + 4
+			p6 := p1 + 5
 
-			comment := gofakeit.Sentence(10)
-			diffRating := gofakeit.Float64Range(1, 5)
-			friendRating := gofakeit.Float64Range(1, 5)
+			valueStrings = append(valueStrings, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d)", p1, p2, p3, p4, p5, p6))
+			valueArgs = append(valueArgs, gofakeit.UUID(), userID, profID, gofakeit.Sentence(10), gofakeit.Float64Range(1, 5), gofakeit.Float64Range(1, 5))
+		}
 
-			_, err := db.Exec(`INSERT INTO reviews (id, user_id, prof_id, comment, difficulty_rating, friendly_rating)
-				VALUES ($1, $2, $3, $4, $5, $6, $7)
-				ON CONFLICT DO NOTHING`,
-				gofakeit.UUID(), userID, profID, comment, diffRating, friendRating)
+		if len(valueArgs) == 0 {
+			continue
+		}
 
-			if err != nil {
-				log.Println("insert review error:", err)
-			}
-
-			log.Println("Inserted review:", i+1)
-		}()
+		stmt := fmt.Sprintf(`INSERT INTO reviews (id, user_id, prof_id, comment, difficulty_rating, friendly_rating) VALUES %s ON CONFLICT (user_id, prof_id) DO NOTHING`, strings.Join(valueStrings, ","))
+		_, err := db.Exec(stmt, valueArgs...)
+		if err != nil {
+			log.Printf("insert review error on batch starting at %d: %v\n", i, err)
+		}
+		log.Printf("Processed %d reviews\n", end)
 	}
 
-	wg.Wait()
-	fmt.Println("Reviews seeded concurrently!")
+	fmt.Println("Reviews seeded!")
 }
 
 func seedReviewReactions(count int) {
 	var userIDs, reviewIDs []string
-	err := db.Select(&userIDs, "SELECT id FROM users")
-	if err != nil {
-		log.Println("error fetching users:", err)
-		return
+	if err := db.Select(&userIDs, "SELECT id FROM users"); err != nil {
+		log.Fatalf("error fetching users: %v", err)
 	}
-	err = db.Select(&reviewIDs, "SELECT id FROM reviews")
-	if err != nil {
-		log.Println("error fetching reviews:", err)
-		return
+	if err := db.Select(&reviewIDs, "SELECT id FROM reviews"); err != nil {
+		log.Fatalf("error fetching reviews: %v", err)
 	}
 
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	usedPairs := make(map[string]bool)
+	if len(userIDs) == 0 || len(reviewIDs) == 0 {
+		log.Println("No users or reviews to create reactions for.")
+		return
+	}
 
-	for i := 0; i < count; i++ {
-		wg.Add(1)
+	batchSize := 100
+	for i := 0; i < count; i += batchSize {
+		valueStrings := make([]string, 0, batchSize)
+		valueArgs := make([]interface{}, 0, batchSize*3)
+		end := i + batchSize
+		if end > count {
+			end = count
+		}
 
-		go func() {
-			defer wg.Done()
+		usedPairsInBatch := make(map[string]bool)
+
+		for j := i; j < end; j++ {
 			userID := userIDs[gofakeit.Number(0, len(userIDs)-1)]
 			reviewID := reviewIDs[gofakeit.Number(0, len(reviewIDs)-1)]
 			key := userID + "-" + reviewID
 
-			mu.Lock()
-			if usedPairs[key] {
-				mu.Unlock()
-				return
+			if usedPairsInBatch[key] {
+				continue
 			}
-			usedPairs[key] = true
-			mu.Unlock()
+			usedPairsInBatch[key] = true
 
-			reactionType := gofakeit.Number(1, 2)
+			p1 := len(valueArgs) + 1
+			p2 := p1 + 1
+			p3 := p1 + 2
+			valueStrings = append(valueStrings, fmt.Sprintf("($%d, $%d, $%d)", p1, p2, p3))
+			valueArgs = append(valueArgs, userID, reviewID, gofakeit.Number(1, 2))
+		}
 
-			_, err := db.Exec(`
-				INSERT INTO review_reactions (user_id, review_id, reaction_type)
-				VALUES ($1, $2, $3)
-				ON CONFLICT DO NOTHING`,
-				userID, reviewID, reactionType)
+		if len(valueArgs) == 0 {
+			continue
+		}
 
-			if err != nil {
-				log.Println("insert review_reaction error:", err)
-			}
-			log.Println("Inserted review reaction:", i+1)
-		}()
+		stmt := fmt.Sprintf(`INSERT INTO review_reactions (user_id, review_id, reaction_type) VALUES %s ON CONFLICT (user_id, review_id) DO NOTHING`, strings.Join(valueStrings, ","))
+		_, err := db.Exec(stmt, valueArgs...)
+		if err != nil {
+			log.Printf("insert review_reaction error on batch starting at %d: %v\n", i, err)
+		}
+		log.Printf("Processed %d review reactions\n", end)
 	}
 
-	wg.Wait()
-	fmt.Println("Review reactions seeded concurrently!")
+	fmt.Println("Review reactions seeded!")
 }
