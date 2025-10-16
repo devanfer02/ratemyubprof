@@ -12,12 +12,14 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/main 
 
-FROM golang:1.24-alpine
+FROM alpine:3.20
 
 WORKDIR /app 
 
 COPY --from=builder /app/main . 
 COPY --from=builder /app/internal/logs /app/internal/logs
+
+RUN apk --no-cache add ca-certificates tzdata
 
 ENV TZ=Asia/Jakarta
 

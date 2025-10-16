@@ -11,9 +11,7 @@ services:
     networks:
       - ratemyubprof
   app:
-    build:
-      dockerfile: ./deploy/docker/Dockerfile
-      context: .
+    image: dvnnfrr/ratemyubprof-api
     container_name: ratemyubprof-be
     volumes:
       - ./env.json:/app/env.json:ro
