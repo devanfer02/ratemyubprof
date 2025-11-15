@@ -46,3 +46,4 @@ env.json
 *.log
 todo.txt
 cover.out
+.idea
