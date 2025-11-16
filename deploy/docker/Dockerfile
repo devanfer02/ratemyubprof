@@ -23,4 +23,6 @@ RUN apk --no-cache add ca-certificates tzdata
 
 ENV TZ=Asia/Jakarta
 
+EXPOSE 8000
+
 CMD [ "/app/main" ]
