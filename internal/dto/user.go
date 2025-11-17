@@ -19,20 +19,14 @@ type UserLoginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
-type UserProfileRequest struct {
-	UserID string
-}
-
 type UserProfileResponse struct {
-	ID            string                `json:"id"`
-	NIM           string                `json:"nim"`
-	Username      string                `json:"username"`
-	CreatedAt     string                `json:"createdAt"`
+	UserProfile   FetchUserResponse 	`json:"user"`
 	ReviewsCount  int                   `json:"reviewsCount"`
 	RecentReviews []FetchReviewResponse `json:"recentReviews"`
 }
 
 type FetchUserParams struct {
+	ID       string
 	Username string
 	NIM      string
 }

@@ -12,6 +12,7 @@ import (
 
 	"github.com/devanfer02/ratemyubprof/pkg/siam"
 	"github.com/devanfer02/ratemyubprof/pkg/util"
+	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
 )
 
 func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterRequest) error {
@@ -92,16 +93,26 @@ func (s *userService) ForgotPassword(ctx context.Context, req *dto.ForgotPasswor
 	return nil 
 }
 
-func (s *userService) FetchUserProfile(ctx context.Context, usr *dto.UserProfileRequest) (dto.UserProfileResponse, error) {
+func (s *userService) FetchUserProfile(ctx context.Context, usr *dto.FetchUserParams) (dto.UserProfileResponse, error) {
 	repoClient, err := s.userRepo.NewClient(false)
 	if err != nil {
 		return dto.UserProfileResponse{}, err
 	}
 
-	userProfile, err := repoClient.FetchUserProfile(ctx, usr.UserID)
+	reviewRepoClient, err := s.reviewRepo.NewClient(false)
+
+	user, err := repoClient.FetchUserByParams(ctx, usr)
+
 	if err != nil {
 		return dto.UserProfileResponse{}, err
 	}
+
+	reviews, err := reviewRepoClient.FetchReviewsByParams(context.TODO(), &dto.FetchReviewParams{UserId: user.ID}, &dto.PaginationQuery{})
+	if err != nil {
+		return dto.UserProfileResponse{}, err 
+	}
+
+	userProfile := formatter.FormatToUserProfile(&user, reviews)
 
 	return userProfile, nil
 }

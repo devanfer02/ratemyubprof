@@ -34,7 +34,7 @@ func (c *UserController) Mount(r *echo.Group) {
 	userR := r.Group("/users")
 
 	userR.GET("/profile", c.FetchUserProfile, c.mdlwr.Authenticate())
-	userR.GET("/profile/:id", c.FetchUserProfileByID)
+	userR.GET("/profile/:username", c.FetchUserProfileByUsername)
 	userR.GET("/:userId/reviews", c.FetchReviews)
 	userR.GET("/reviews", c.FetchReviews, c.mdlwr.Authenticate())
 	userR.POST("/register", c.Register, config.PostLimiter)	

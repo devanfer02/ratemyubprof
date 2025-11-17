@@ -110,7 +110,7 @@ func (h *httpServer) MountHandlers() {
 	reactionRepo := reaction_repo.NewReviewReactionRepository(h.Database)
 
 	profSvc := prof_svc.NewProfessorService(profRepo, reviewRepo)
-	userSvc := user_svc.NewUserService(userRepo, jwtHandler)
+	userSvc := user_svc.NewUserService(userRepo, reviewRepo, jwtHandler)
 	authSvc := auth_svc.NewAuthService(userRepo, jwtHandler)
 	reviewSvc := review_svc.NewReviewService(reviewRepo)
 	reactionSvc := reaction_svc.NewReviewReactionService(reactionRepo, h.Logger, h.RabbitMQ)

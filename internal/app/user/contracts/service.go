@@ -9,5 +9,5 @@ import (
 type UserService interface {
 	RegisterUser(ctx context.Context, usr *dto.UserRegisterRequest) error 
 	ForgotPassword(ctx context.Context, req *dto.ForgotPasswordRequest) error
-	FetchUserProfile(ctx context.Context, usr *dto.UserProfileRequest) (dto.UserProfileResponse, error)
+	FetchUserProfile(ctx context.Context, usr *dto.FetchUserParams) (dto.UserProfileResponse, error)
 }

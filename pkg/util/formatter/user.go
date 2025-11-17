@@ -13,3 +13,13 @@ func FormatUserEntityToDto(user *entity.User) dto.FetchUserResponse {
 		CreatedAt: user.CreatedAt.String(),
 	}
 }
+func FormatToUserProfile(user *entity.User, reviews []entity.ReviewWithRelations) (dto.UserProfileResponse) {
+	userDto :=  FormatUserEntityToDto(user)
+	reviewDto := FormatReviewEntitiesToDto(reviews)
+
+	return dto.UserProfileResponse{
+		UserProfile: userDto,
+		RecentReviews: reviewDto,
+		ReviewsCount: len(reviewDto),
+	}
+}

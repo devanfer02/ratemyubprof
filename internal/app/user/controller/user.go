@@ -123,11 +123,11 @@ func (c *UserController) FetchUserProfile(ectx echo.Context) error {
 	defer cancel()
 
 	var (
-		req dto.UserProfileRequest
+		req dto.FetchUserParams
 	)
 
 	if val := ectx.Get("userId").(string); val != "" {
-		req.UserID = val
+		req.ID = val
 	}
 
 	res, err := c.userSvc.FetchUserProfile(ctx, &req)
@@ -149,15 +149,15 @@ func (c *UserController) FetchUserProfile(ectx echo.Context) error {
 	}
 }
 
-func (c *UserController) FetchUserProfileByID(ectx echo.Context) error {
+func (c *UserController) FetchUserProfileByUsername(ectx echo.Context) error {
 	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
 	defer cancel()
 
 	var (
-		req dto.UserProfileRequest
+		req dto.FetchUserParams
 	)
 
-	req.UserID = ectx.Param("id")
+	req.Username = ectx.Param("username")
 
 	res, err := c.userSvc.FetchUserProfile(ctx, &req)
 	if err != nil {
