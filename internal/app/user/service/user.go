@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
@@ -36,7 +35,6 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 		return err 
 	}
 
-	log.Println("COBA1")
 	err = repoClient.InsertUser(ctx, &entity.User{
 		ID: ulid.Make().String(),
 		NIM: usr.NIM,
@@ -44,12 +42,10 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 		Password: hashed,
 		CreatedAt: time.Now(),
 	})
-	log.Println("COBA2")
 
 	if err != nil {
 		return err 
 	}
-	log.Println("COBA2")
 
 	return nil 
 }

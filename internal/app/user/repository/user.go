@@ -66,6 +66,10 @@ func (u *userRepositoryImplPostgre) FetchUserByParams(ctx context.Context, param
 		qb = qb.Where(goqu.I("nim").Eq(params.NIM))
 	}
 
+	if params.ID != "" {
+		qb = qb.Where(goqu.I("id").Eq(params.ID))
+	}
+
 	query, args, err := qb.SetDialect(goqu.GetDialect("postgres")).ToSQL()
 	if err != nil {
 		return entity.User{}, apperr.NewFromError(err, "Failed to fetch user by username").SetLocation()
