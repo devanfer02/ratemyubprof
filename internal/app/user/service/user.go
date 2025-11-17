@@ -55,7 +55,7 @@ func (s *userService) ForgotPassword(ctx context.Context, req *dto.ForgotPasswor
 		return err 
 	}
 
-	// Check if user already registered or not before using SIAM Auth
+	// Check if user `already registered or not before using SIAM Auth
 	user, err := repoClient.FetchUserByParams(ctx, &dto.FetchUserParams{Username: req.Username, NIM: req.NIM})
 	if err != nil {
 		return err 

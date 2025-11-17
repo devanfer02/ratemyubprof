@@ -31,7 +31,7 @@ services:
     networks:
       - ratemyubprof
   db:
-    image: postgres:16.1
+    image: postgres:16.8
     container_name: ratemyubprof-db
     environment:
       - POSTGRES_USER=${DB_USER} 

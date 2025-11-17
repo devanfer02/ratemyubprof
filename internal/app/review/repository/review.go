@@ -45,10 +45,21 @@ func (p *reviewRepositoryImplPostgre) FetchReviewsByParams(ctx context.Context, 
 			).As("dislike_counter"),
 		).
 		GroupBy(
-			goqu.I("r.id"), 
-			goqu.I("u.id"), 
+			goqu.I("r.id"),
+			goqu.I("r.prof_id"),
+			goqu.I("r.user_id"),
+			goqu.I("r.comment"),
+			goqu.I("r.difficulty_rating"),
+			goqu.I("r.friendly_rating"),
+			goqu.I("r.created_at"),
+			goqu.I("u.id"),
+			goqu.I("u.username"),
 			goqu.I("p.id"),
-		).
+			goqu.I("p.name"),
+			goqu.I("p.faculty"),
+			goqu.I("p.major"),
+			goqu.I("p.profile_img_link"),
+		).		
 		From(goqu.T(reviewTableName).As("r")).
 		Join(
 			goqu.T(userTableName).As("u"),

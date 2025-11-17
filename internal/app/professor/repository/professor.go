@@ -26,7 +26,13 @@ func (p *professorRepositoryImplPostgre) FetchAllProfessors(ctx context.Context,
 			goqu.Func("AVG", goqu.Func("COALESCE", goqu.I("r.difficulty_rating"), goqu.V(0))).As("avg_diff_rate"),
 			goqu.Func("AVG", goqu.Func("COALESCE", goqu.I("r.friendly_rating"), goqu.V(0))).As("avg_friendly_rate"),
 		).
-		GroupBy(goqu.I("p.id")).
+		GroupBy(
+			goqu.I("p.id"),
+			goqu.I("p.name"),
+			goqu.I("p.faculty"),
+			goqu.I("p.major"),
+			goqu.I("p.profile_img_link"),
+		).
 		From(goqu.T(professorTableName).As("p")).
 		LeftJoin(
 			goqu.T(reviewTableName).As("r"),
@@ -79,7 +85,13 @@ func (p *professorRepositoryImplPostgre) FetchProfessorByID(ctx context.Context,
 			goqu.Func("AVG", goqu.Func("COALESCE", goqu.I("r.difficulty_rating"), goqu.V(0))).As("avg_diff_rate"),
 			goqu.Func("AVG", goqu.Func("COALESCE", goqu.I("r.friendly_rating"), goqu.V(0))).As("avg_friendly_rate"),
 		).
-		GroupBy(goqu.I("p.id")).
+		GroupBy(
+			goqu.I("p.id"),
+			goqu.I("p.name"),
+			goqu.I("p.faculty"),
+			goqu.I("p.major"),
+			goqu.I("p.profile_img_link"),
+		).
 		From(goqu.T(professorTableName).As("p")).
 		LeftJoin(
 			goqu.T(reviewTableName).As("r"),
