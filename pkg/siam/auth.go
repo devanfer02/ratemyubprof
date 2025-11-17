@@ -2,7 +2,10 @@ package siam
 
 import (
 	"bytes"
+	"errors"
 	"mime/multipart"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -89,6 +92,43 @@ func (s *SiamAuthManager) Authenticate(username, password string) error {
 
 	s.logout(reqHeaders)
 	
+
+	return nil 
+}
+
+func (s *SiamAuthManager) MockAuthenticate(nim string) error {
+	if len(nim) != 15 {
+		return errors.New("Invalid NIM length")
+	}
+
+	isNumeric, _ := regexp.MatchString(`^[0-9]+$`, nim)
+	if !isNumeric {
+		return errors.New("NIM should only contain numbers")
+	}
+
+	tahunMasuk := nim[0:2]
+	kodeFakultas := nim[2:5]
+	kodeProdi := nim[5:7]
+	jalurMasuk := nim[7:12]
+
+	numTahun, _ := strconv.Atoi(tahunMasuk)
+	numProdi, _ := strconv.Atoi(kodeProdi)
+
+	if numTahun >= 25 || numTahun < 10 {
+		return errors.New("Invalid student year code in NIM")
+	}
+
+	if jalurMasuk != "01111" && jalurMasuk != "00111" && jalurMasuk != "07111" {
+		return errors.New("Invalid entry route code in NIM")
+	}
+
+	if kodeFakultas != "515" {
+		return errors.New("Currently only FILKOM students are allowed.")
+	}
+
+	if numProdi < 01 || numProdi > 06 {
+		return errors.New("Invalid FILKOM major given")
+	}
 
 	return nil 
 }

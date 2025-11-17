@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"log"
 	"time"
 
 	"github.com/devanfer02/ratemyubprof/internal/app/user/contracts"
@@ -10,6 +11,7 @@ import (
 	"github.com/devanfer02/ratemyubprof/internal/entity"
 	"github.com/oklog/ulid/v2"
 
+	apperr "github.com/devanfer02/ratemyubprof/pkg/http/errors"
 	"github.com/devanfer02/ratemyubprof/pkg/siam"
 	"github.com/devanfer02/ratemyubprof/pkg/util"
 	"github.com/devanfer02/ratemyubprof/pkg/util/formatter"
@@ -18,10 +20,10 @@ import (
 func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterRequest) error {
 	authMgr := siam.NewSiamAuthManager()
 
-	err := authMgr.Authenticate(usr.NIM, usr.Password)
+	err := authMgr.MockAuthenticate(usr.NIM)
 
 	if err != nil {
-		return err 
+		return apperr.NewFromError(err, err.Error()).SetCode(400)
 	}
 
 	repoClient, err := s.userRepo.NewClient(false)
@@ -34,6 +36,7 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 		return err 
 	}
 
+	log.Println("COBA1")
 	err = repoClient.InsertUser(ctx, &entity.User{
 		ID: ulid.Make().String(),
 		NIM: usr.NIM,
@@ -41,10 +44,12 @@ func (s *userService) RegisterUser(ctx context.Context, usr *dto.UserRegisterReq
 		Password: hashed,
 		CreatedAt: time.Now(),
 	})
+	log.Println("COBA2")
 
 	if err != nil {
 		return err 
 	}
+	log.Println("COBA2")
 
 	return nil 
 }
