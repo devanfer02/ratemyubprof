@@ -117,3 +117,63 @@ func (c *UserController) ResetPassowrd(ectx echo.Context) error {
 		return ectx.JSON(http.StatusOK, resp)
 	}
 }
+
+func (c *UserController) FetchUserProfile(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		req dto.UserProfileRequest
+	)
+
+	if val := ectx.Get("userId").(string); val != "" {
+		req.UserID = val
+	}
+
+	res, err := c.userSvc.FetchUserProfile(ctx, &req)
+	if err != nil {
+		return err
+	}
+
+	resp := response.New(
+		"Successfully fetch user profile",
+		res,
+		nil,
+	)
+
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusOK, resp)
+	}
+}
+
+func (c *UserController) FetchUserProfileByID(ectx echo.Context) error {
+	ctx, cancel := context.WithTimeout(ectx.Request().Context(), c.timeout)
+	defer cancel()
+
+	var (
+		req dto.UserProfileRequest
+	)
+
+	req.UserID = ectx.Param("id")
+
+	res, err := c.userSvc.FetchUserProfile(ctx, &req)
+	if err != nil {
+		return err 
+	}
+
+	resp := response.New(
+		"Successfully fetch user profile",
+		res,
+		nil,
+	)
+
+	select {
+	case <-ctx.Done():
+		return contracts.ErrRequestTimeout
+	default:
+		return ectx.JSON(http.StatusOK, resp)
+	}
+}

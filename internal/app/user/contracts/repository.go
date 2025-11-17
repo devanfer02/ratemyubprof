@@ -13,6 +13,7 @@ type UserRepositoryProvider interface {
 
 type UserRepository interface {
 	FetchUserByParams(ctx context.Context, params *dto.FetchUserParams) (entity.User, error)
-	InsertUser(ctx context.Context, user *entity.User) error 	
-	UpdateUser(ctx context.Context, user *entity.User) error 	
+	InsertUser(ctx context.Context, user *entity.User) error
+	UpdateUser(ctx context.Context, user *entity.User) error
+	FetchUserProfile(ctx context.Context, userID string) (dto.UserProfileResponse, error)
 }

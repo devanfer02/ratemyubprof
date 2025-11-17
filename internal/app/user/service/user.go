@@ -89,6 +89,20 @@ func (s *userService) ForgotPassword(ctx context.Context, req *dto.ForgotPasswor
 		return err 
 	}
 
-
 	return nil 
 }
+
+func (s *userService) FetchUserProfile(ctx context.Context, usr *dto.UserProfileRequest) (dto.UserProfileResponse, error) {
+	repoClient, err := s.userRepo.NewClient(false)
+	if err != nil {
+		return dto.UserProfileResponse{}, err
+	}
+
+	userProfile, err := repoClient.FetchUserProfile(ctx, usr.UserID)
+	if err != nil {
+		return dto.UserProfileResponse{}, err
+	}
+
+	return userProfile, nil
+}
+
